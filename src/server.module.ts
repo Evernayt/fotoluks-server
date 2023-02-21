@@ -30,9 +30,7 @@ import { GatewayModule } from './gateway/gateway.module';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({
-      envFilePath: `.${process.env.NODE_ENV}.env`,
-    }),
+    ConfigModule.forRoot(),
     ServeStaticModule.forRoot({
       rootPath: path.resolve(__dirname, 'static'),
     }),
