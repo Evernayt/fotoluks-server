@@ -30,14 +30,17 @@ export class TypesService {
 
     if (featureIds) {
       const typeFeatureData = [];
-      for (let i = 0; i < featureIds.length; i++) {
+      featureIds.forEach((featureId) => {
         typeFeatureData.push({
           typeId: type.id,
-          featureId: featureIds[i],
+          featureId,
         });
-      }
+      });
+
       if (typeFeatureData.length) {
-        await this.typeFeaturesModel.bulkCreate(typeFeatureData);
+        await this.typeFeaturesModel.bulkCreate(typeFeatureData, {
+          ignoreDuplicates: true,
+        });
       }
     }
 
@@ -166,7 +169,9 @@ export class TypesService {
         });
       });
 
-      await this.typeFeaturesModel.bulkCreate(typeFeatureData);
+      await this.typeFeaturesModel.bulkCreate(typeFeatureData, {
+        ignoreDuplicates: true,
+      });
     }
 
     return type;
@@ -202,15 +207,20 @@ export class TypesService {
   async updateTypeParams(updateTypeParamsDto: UpdateTypeParamsDto) {
     const { id, paramIdsForCreate, paramIdsForDelete } = updateTypeParamsDto;
 
-    await this.typeParamsModel.destroy({
-      where: { typeId: id, paramId: paramIdsForDelete },
-    });
+    if (paramIdsForDelete.length) {
+      await this.typeParamsModel.destroy({
+        where: { typeId: id, paramId: paramIdsForDelete },
+      });
+    }
 
     const typeParamData = [];
     paramIdsForCreate.forEach((paramId) => {
       typeParamData.push({ typeId: id, paramId });
     });
-    const typeParams = await this.typeParamsModel.bulkCreate(typeParamData);
+
+    const typeParams = await this.typeParamsModel.bulkCreate(typeParamData, {
+      ignoreDuplicates: true,
+    });
 
     return typeParams;
   }

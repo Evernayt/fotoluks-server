@@ -101,6 +101,7 @@ export class OrdersService {
 
           await this.selectedParamModel.bulkCreate(selectedParamsBody, {
             transaction: t,
+            ignoreDuplicates: true,
           });
         }
 
@@ -176,6 +177,7 @@ export class OrdersService {
 
           await this.selectedParamModel.bulkCreate(selectedParamsBody, {
             transaction: t,
+            ignoreDuplicates: true,
           });
         }
       }
@@ -208,6 +210,7 @@ export class OrdersService {
 
         await this.orderMemberModel.bulkCreate(orderMembersBody, {
           transaction: t,
+          ignoreDuplicates: true,
         });
       }
 
@@ -317,7 +320,7 @@ export class OrdersService {
       whereOrder = { ...whereOrder, ...whereSearch };
     }
 
-    console.log(whereOrder)
+    console.log(whereOrder);
 
     const orders = await this.orderModel.findAndCountAll({
       subQuery: false,

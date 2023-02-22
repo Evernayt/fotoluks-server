@@ -24,13 +24,15 @@ export class FavoritesService {
     const favorite = await this.favoriteModel.create({ typeId, employeeId });
 
     const favoriteParams = [];
-    for (let i = 0; i < selectedParams.length; i++) {
+    selectedParams.forEach((selectedParam) => {
       favoriteParams.push({
-        paramId: selectedParams[i].param.id,
+        paramId: selectedParam.param.id,
         favoriteId: favorite.id,
       });
-    }
-    await this.favoriteParamModel.bulkCreate(favoriteParams);
+    });
+    await this.favoriteParamModel.bulkCreate(favoriteParams, {
+      ignoreDuplicates: true,
+    });
 
     const foundFavorite = await this.favoriteModel.findOne({
       where: { id: favorite.id },

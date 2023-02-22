@@ -28,15 +28,15 @@ export class NotificationsService {
       );
 
       const employeeNotificationsData = [];
-      for (let i = 0; i < employeeIds.length; i++) {
+      employeeIds.forEach((employeeId) => {
         employeeNotificationsData.push({
-          employeeId: employeeIds[i],
+          employeeId,
           notificationId: notification.id,
         });
-      }
+      });
       await this.employeeNotificationsModel.bulkCreate(
         employeeNotificationsData,
-        { transaction: t },
+        { transaction: t, ignoreDuplicates: true },
       );
 
       await t.commit();
