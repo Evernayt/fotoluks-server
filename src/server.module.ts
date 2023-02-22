@@ -32,7 +32,7 @@ import { GatewayModule } from './gateway/gateway.module';
   imports: [
     ConfigModule.forRoot(),
     ServeStaticModule.forRoot({
-      rootPath: path.resolve(__dirname, 'static'),
+      rootPath: path.resolve(__dirname, '../static'),
     }),
     SequelizeModule.forRoot({
       dialect: 'mysql',

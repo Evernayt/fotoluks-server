@@ -11,7 +11,7 @@ export class FilesService {
   async avatar(file: any) {
     try {
       const fileName = uuidv4() + '.jpg';
-      const avatarPath = path.join(__dirname, '..', 'static', 'avatar');
+      const avatarPath = path.join(__dirname, '../..', 'static', 'avatar');
 
       if (!fs.existsSync(avatarPath)) {
         fs.mkdirSync(avatarPath, { recursive: true });
@@ -44,7 +44,7 @@ export class FilesService {
       if (isManagerFile) {
         folder = managerFolder;
       }
-      const filePath = path.join(__dirname, '..', 'static', folder);
+      const filePath = path.join(__dirname, '../..', 'static', folder);
 
       if (!fs.existsSync(filePath)) {
         fs.mkdirSync(filePath, { recursive: true });
@@ -64,7 +64,7 @@ export class FilesService {
       const { userId, shopId } = fileUploadDto;
 
       const zipFileName = uuidv4() + '.zip';
-      const uploadsPath = path.join(__dirname, '..', 'static', 'uploads');
+      const uploadsPath = path.join(__dirname, '../..', 'static', 'uploads');
 
       if (!fs.existsSync(uploadsPath)) {
         fs.mkdirSync(uploadsPath, { recursive: true });
