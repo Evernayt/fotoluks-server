@@ -34,7 +34,7 @@ export class Type extends Model<Type, TypeCreationAttrs> {
   id: number;
 
   @ApiProperty({ example: '10х15', description: 'Наименование' })
-  @Column({ type: DataType.STRING, unique: true, allowNull: false })
+  @Column({ type: DataType.STRING, allowNull: false })
   name: string;
 
   @ApiProperty({ example: 10, description: 'Цена' })
