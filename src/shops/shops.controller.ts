@@ -1,4 +1,14 @@
-import { Body, Controller, Get, Param, Post, Put, Query } from '@nestjs/common';
+import { JwtAuthGuard } from './../auth/guard/jwt-auth.guard';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Post,
+  Put,
+  Query,
+  UseGuards,
+} from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { CreateShopDto } from './dto/create-shop.dto';
 import { GetShopsDto } from './dto/get-shops.dto';
@@ -13,6 +23,7 @@ export class ShopsController {
 
   @ApiOperation({ summary: 'Создание филиала' })
   @ApiResponse({ status: 200, type: Shop })
+  @UseGuards(JwtAuthGuard)
   @Post()
   create(@Body() createShopDto: CreateShopDto) {
     return this.shopsService.createShop(createShopDto);
@@ -27,6 +38,7 @@ export class ShopsController {
 
   @ApiOperation({ summary: 'Получить филиал' })
   @ApiResponse({ status: 200, type: Shop })
+  @UseGuards(JwtAuthGuard)
   @Get(':id')
   getOne(@Param('id') id: number) {
     return this.shopsService.getShop(id);
@@ -34,6 +46,7 @@ export class ShopsController {
 
   @ApiOperation({ summary: 'Изменить филиал' })
   @ApiResponse({ status: 200, type: Shop })
+  @UseGuards(JwtAuthGuard)
   @Put()
   update(@Body() updateShopDto: UpdateShopDto) {
     return this.shopsService.updateShop(updateShopDto);

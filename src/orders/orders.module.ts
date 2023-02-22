@@ -1,4 +1,5 @@
-import { Module } from '@nestjs/common';
+import { AuthModule } from './../auth/auth.module';
+import { Module, forwardRef } from '@nestjs/common';
 import { SequelizeModule } from '@nestjs/sequelize';
 import { FinishedProduct } from 'src/finished-products/finished-products.model';
 import { OrderInfo } from 'src/order-infos/order-infos.model';
@@ -19,6 +20,7 @@ import { OrdersService } from './orders.service';
       SelectedParam,
       OrderMember,
     ]),
+    forwardRef(() => AuthModule),
   ],
 })
 export class OrdersModule {}

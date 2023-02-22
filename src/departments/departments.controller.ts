@@ -1,4 +1,5 @@
-import { Body, Controller, Get, Post, Query } from '@nestjs/common';
+import { JwtAuthGuard } from './../auth/guard/jwt-auth.guard';
+import { Body, Controller, Get, Post, Query, UseGuards } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Department } from './departments.model';
 import { DepartmentsService } from './departments.service';
@@ -12,6 +13,7 @@ export class DepartmentsController {
 
   @ApiOperation({ summary: 'Создание отдела' })
   @ApiResponse({ status: 200, type: Department })
+  @UseGuards(JwtAuthGuard)
   @Post()
   create(@Body() createDepartmentDto: CreateDepartmentDto) {
     return this.departmentsService.createDepartment(createDepartmentDto);
@@ -19,6 +21,7 @@ export class DepartmentsController {
 
   @ApiOperation({ summary: 'Получить отделы' })
   @ApiResponse({ status: 200, type: [Department] })
+  @UseGuards(JwtAuthGuard)
   @Get()
   getAll(@Query() getDepartmentsDto: GetDepartmentsDto) {
     return this.departmentsService.getDepartments(getDepartmentsDto);

@@ -1,4 +1,5 @@
-import { Module } from '@nestjs/common';
+import { AuthModule } from './../auth/auth.module';
+import { Module, forwardRef } from '@nestjs/common';
 import { SequelizeModule } from '@nestjs/sequelize';
 import { Employee } from 'src/employees/employees.model';
 import { EmployeeNotifications } from './employee-notifications.model';
@@ -11,6 +12,7 @@ import { NotificationsService } from './notifications.service';
   providers: [NotificationsService],
   imports: [
     SequelizeModule.forFeature([Notification, Employee, EmployeeNotifications]),
+    forwardRef(() => AuthModule),
   ],
 })
 export class NotificationsModule {}

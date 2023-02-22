@@ -1,4 +1,14 @@
-import { Body, Controller, Get, Param, Post, Put, Query } from '@nestjs/common';
+import { JwtAuthGuard } from './../auth/guard/jwt-auth.guard';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Post,
+  Put,
+  Query,
+  UseGuards,
+} from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { CreateTypeDto } from './dto/create-type.dto';
 import { GetTypeParamsDto } from './dto/get-type-params.dto';
@@ -15,6 +25,7 @@ export class TypesController {
 
   @ApiOperation({ summary: 'Создание типа' })
   @ApiResponse({ status: 200, type: Type })
+  @UseGuards(JwtAuthGuard)
   @Post()
   create(@Body() createTypeDto: CreateTypeDto) {
     return this.typesService.createType(createTypeDto);
@@ -22,6 +33,7 @@ export class TypesController {
 
   @ApiOperation({ summary: 'Получить типы' })
   @ApiResponse({ status: 200, type: [Type] })
+  @UseGuards(JwtAuthGuard)
   @Get()
   getAll(@Query() getTypesDto: GetTypesDto) {
     return this.typesService.getTypes(getTypesDto);
@@ -29,7 +41,7 @@ export class TypesController {
 
   @ApiOperation({ summary: 'Получить параметры типа' })
   @ApiResponse({ status: 200, type: [Param] })
-  // @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard)
   @Get('params')
   getParams(@Query() getTypeParamsDto: GetTypeParamsDto) {
     return this.typesService.getTypeParams(getTypeParamsDto);
@@ -37,7 +49,7 @@ export class TypesController {
 
   @ApiOperation({ summary: 'Получить тип' })
   @ApiResponse({ status: 200, type: Type })
-  // @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard)
   @Get(':id')
   getOne(@Param('id') id: number) {
     return this.typesService.getType(id);
@@ -45,6 +57,7 @@ export class TypesController {
 
   @ApiOperation({ summary: 'Изменить тип' })
   @ApiResponse({ status: 200, type: Type })
+  @UseGuards(JwtAuthGuard)
   @Put()
   update(@Body() updateTypeDto: UpdateTypeDto) {
     return this.typesService.updateType(updateTypeDto);
@@ -52,6 +65,7 @@ export class TypesController {
 
   @ApiOperation({ summary: 'Изменить параметры типа' })
   @ApiResponse({ status: 200 })
+  @UseGuards(JwtAuthGuard)
   @Put('params')
   updateParams(@Body() updateTypeParamsDto: UpdateTypeParamsDto) {
     return this.typesService.updateTypeParams(updateTypeParamsDto);

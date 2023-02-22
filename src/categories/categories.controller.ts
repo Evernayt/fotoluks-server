@@ -1,4 +1,14 @@
-import { Body, Controller, Get, Param, Post, Put, Query } from '@nestjs/common';
+import { JwtAuthGuard } from './../auth/guard/jwt-auth.guard';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Post,
+  Put,
+  Query,
+  UseGuards,
+} from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Category } from './categories.model';
 import { CategoriesService } from './categories.service';
@@ -13,6 +23,7 @@ export class CategoriesController {
 
   @ApiOperation({ summary: 'Создание категории' })
   @ApiResponse({ status: 200, type: Category })
+  @UseGuards(JwtAuthGuard)
   @Post()
   create(@Body() createCategoryDto: CreateCategoryDto) {
     return this.categoriesService.createCategory(createCategoryDto);
@@ -20,6 +31,7 @@ export class CategoriesController {
 
   @ApiOperation({ summary: 'Получить категории' })
   @ApiResponse({ status: 200, type: [Category] })
+  @UseGuards(JwtAuthGuard)
   @Get()
   getAll(@Query() getCategoriesDto: GetCategoriesDto) {
     return this.categoriesService.getCategories(getCategoriesDto);
@@ -34,6 +46,7 @@ export class CategoriesController {
 
   @ApiOperation({ summary: 'Получить категорию' })
   @ApiResponse({ status: 200, type: Category })
+  @UseGuards(JwtAuthGuard)
   @Get(':id')
   getOne(@Param('id') id: number) {
     return this.categoriesService.getCategory(id);
@@ -41,6 +54,7 @@ export class CategoriesController {
 
   @ApiOperation({ summary: 'Изменить категорию' })
   @ApiResponse({ status: 200, type: Category })
+  @UseGuards(JwtAuthGuard)
   @Put()
   update(@Body() updateCategoryDto: UpdateCategoryDto) {
     return this.categoriesService.updateCategory(updateCategoryDto);

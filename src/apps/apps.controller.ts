@@ -1,4 +1,5 @@
-import { Body, Controller, Get, Post, Query } from '@nestjs/common';
+import { JwtAuthGuard } from './../auth/guard/jwt-auth.guard';
+import { Body, Controller, Get, Post, Query, UseGuards } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { App } from './apps.model';
 import { AppsService } from './apps.service';
@@ -12,6 +13,7 @@ export class AppsController {
 
   @ApiOperation({ summary: 'Создание приложения' })
   @ApiResponse({ status: 200, type: App })
+  @UseGuards(JwtAuthGuard)
   @Post()
   create(@Body() createAppDto: CreateAppDto) {
     return this.appsService.createApp(createAppDto);
@@ -19,6 +21,7 @@ export class AppsController {
 
   @ApiOperation({ summary: 'Получить приолжения' })
   @ApiResponse({ status: 200, type: [App] })
+  @UseGuards(JwtAuthGuard)
   @Get()
   getAll(@Query() getAppsDto: GetAppsDto) {
     return this.appsService.getApps(getAppsDto);

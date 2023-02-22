@@ -22,7 +22,7 @@ export class UsersController {
 
   @ApiOperation({ summary: 'Получить всех пользователей' })
   @ApiResponse({ status: 200, type: [User] })
-  // @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard)
   @Get()
   getAll(@Query() getUsersDto: GetUsersDto) {
     return this.usersService.getUsers(getUsersDto);
@@ -30,7 +30,7 @@ export class UsersController {
 
   @ApiOperation({ summary: 'Получить пользователя по номеру телефона' })
   @ApiResponse({ status: 200, type: User })
-  // @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard)
   @Get('phone/:phone')
   getOneByPhone(@Param('phone') phone: string) {
     return this.usersService.getUserByPhone(phone);
@@ -38,7 +38,7 @@ export class UsersController {
 
   @ApiOperation({ summary: 'Получить пользователя' })
   @ApiResponse({ status: 200, type: User })
-  // @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard)
   @Get(':id')
   getOne(@Param('id') id: number) {
     return this.usersService.getUser(id);
@@ -46,7 +46,7 @@ export class UsersController {
 
   @ApiOperation({ summary: 'Изменить пользователя' })
   @ApiResponse({ status: 200, type: User })
-  //@UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard)
   @Put()
   update(@Body() updateUserDto: UpdateUserDto) {
     return this.usersService.updateUser(updateUserDto);
@@ -54,7 +54,7 @@ export class UsersController {
 
   @ApiOperation({ summary: 'Изменить пароль пользователя' })
   @ApiResponse({ status: 200, type: User })
-  //@UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard)
   @Put('password')
   updatePassword(@Body() updateUserPasswordDto: UpdateUserPasswordDto) {
     return this.usersService.updateUserPassword(updateUserPasswordDto);

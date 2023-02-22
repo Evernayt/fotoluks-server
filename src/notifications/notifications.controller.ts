@@ -1,3 +1,4 @@
+import { JwtAuthGuard } from './../auth/guard/jwt-auth.guard';
 import {
   Body,
   Controller,
@@ -6,6 +7,7 @@ import {
   Param,
   Post,
   Query,
+  UseGuards,
 } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { CreateNotificationDto } from './dto/create-notification.dto';
@@ -20,6 +22,7 @@ export class NotificationsController {
 
   @ApiOperation({ summary: 'Создание уведомления' })
   @ApiResponse({ status: 200, type: Notification })
+  @UseGuards(JwtAuthGuard)
   @Post()
   create(@Body() createNotificationDto: CreateNotificationDto) {
     return this.notificationsService.createNotification(createNotificationDto);
@@ -27,6 +30,7 @@ export class NotificationsController {
 
   @ApiOperation({ summary: 'Получение уведомлений' })
   @ApiResponse({ status: 200, type: [Notification] })
+  @UseGuards(JwtAuthGuard)
   @Get()
   getAll(@Query() getNotificationsDto: GetNotificationsDto) {
     return this.notificationsService.getNotifications(getNotificationsDto);
@@ -34,6 +38,7 @@ export class NotificationsController {
 
   @ApiOperation({ summary: 'Очистить уведомления сотрудника' })
   @ApiResponse({ status: 200 })
+  @UseGuards(JwtAuthGuard)
   @Delete(':employeeId')
   deleteAllByEmployeeId(@Param('employeeId') employeeId: number) {
     return this.notificationsService.deleteNotificationsByEmployeeId(

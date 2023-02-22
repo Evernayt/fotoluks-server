@@ -4,6 +4,7 @@ import { Order } from 'src/orders/orders.model';
 
 interface UserCreationAttrs {
   name: string;
+  phone: string;
   password: string;
 }
 
@@ -30,15 +31,15 @@ export class User extends Model<User, UserCreationAttrs> {
   phone: string;
 
   @ApiProperty({ example: 'ivan@mail.ru', description: 'Почтовый адрес' })
-  @Column({ type: DataType.STRING, allowNull: false })
+  @Column({ type: DataType.STRING })
   email: string;
 
   @ApiProperty({ example: 'ivan', description: 'ВКонтакте' })
-  @Column({ type: DataType.STRING, allowNull: false })
+  @Column({ type: DataType.STRING })
   vk: string;
 
   @ApiProperty({ example: 'ivan', description: 'Telegram' })
-  @Column({ type: DataType.STRING, allowNull: false })
+  @Column({ type: DataType.STRING })
   telegram: string;
 
   @ApiProperty({ example: 'https://google.com', description: 'Аватар' })

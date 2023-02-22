@@ -1,4 +1,5 @@
-import { Module } from '@nestjs/common';
+import { AuthModule } from './../auth/auth.module';
+import { Module, forwardRef } from '@nestjs/common';
 import { SequelizeModule } from '@nestjs/sequelize';
 import { Type } from 'src/types/types.model';
 import { ParamsController } from './params.controller';
@@ -9,6 +10,9 @@ import { TypeParams } from './type-params.model';
 @Module({
   controllers: [ParamsController],
   providers: [ParamsService],
-  imports: [SequelizeModule.forFeature([Param, Type, TypeParams])],
+  imports: [
+    SequelizeModule.forFeature([Param, Type, TypeParams]),
+    forwardRef(() => AuthModule),
+  ],
 })
 export class ParamsModule {}

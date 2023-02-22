@@ -1,3 +1,4 @@
+import { JwtAuthGuard } from './../auth/guard/jwt-auth.guard';
 import {
   Body,
   Controller,
@@ -6,6 +7,7 @@ import {
   Param,
   Post,
   Query,
+  UseGuards,
 } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { CreateFavoriteDto } from './dto/create-favorite.dto';
@@ -20,6 +22,7 @@ export class FavoritesController {
 
   @ApiOperation({ summary: 'Создание избранного' })
   @ApiResponse({ status: 200, type: Favorite })
+  @UseGuards(JwtAuthGuard)
   @Post()
   create(@Body() createFavoriteDto: CreateFavoriteDto) {
     return this.favoritesService.createFavorite(createFavoriteDto);
@@ -27,6 +30,7 @@ export class FavoritesController {
 
   @ApiOperation({ summary: 'Получение избранных' })
   @ApiResponse({ status: 200, type: [Favorite] })
+  @UseGuards(JwtAuthGuard)
   @Get()
   getAll(@Query() getFavoritesDto: GetFavoritesDto) {
     return this.favoritesService.getFavorites(getFavoritesDto);
@@ -34,6 +38,7 @@ export class FavoritesController {
 
   @ApiOperation({ summary: 'Удаление избранного' })
   @ApiResponse({ status: 200 })
+  @UseGuards(JwtAuthGuard)
   @Delete(':id')
   delete(@Param('id') id: number) {
     return this.favoritesService.deleteFavorite(id);

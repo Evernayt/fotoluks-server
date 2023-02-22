@@ -1,3 +1,4 @@
+import { JwtAuthGuard } from './../auth/guard/jwt-auth.guard';
 import {
   Body,
   Controller,
@@ -6,6 +7,7 @@ import {
   Put,
   Query,
   Param as ParamNest,
+  UseGuards,
 } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { CreateParamDto } from './dto/create-param.dto';
@@ -21,6 +23,7 @@ export class ParamsController {
 
   @ApiOperation({ summary: 'Создание параметра' })
   @ApiResponse({ status: 200, type: Param })
+  @UseGuards(JwtAuthGuard)
   @Post()
   create(@Body() createParamDto: CreateParamDto) {
     return this.paramsService.createParam(createParamDto);
@@ -28,6 +31,7 @@ export class ParamsController {
 
   @ApiOperation({ summary: 'Получить параметры' })
   @ApiResponse({ status: 200, type: [Param] })
+  @UseGuards(JwtAuthGuard)
   @Get()
   getAll(@Query() getParamsDto: GetParamsDto) {
     return this.paramsService.getParams(getParamsDto);
@@ -35,6 +39,7 @@ export class ParamsController {
 
   @ApiOperation({ summary: 'Получить параметр' })
   @ApiResponse({ status: 200, type: Param })
+  @UseGuards(JwtAuthGuard)
   @Get(':id')
   getOne(@ParamNest('id') id: number) {
     return this.paramsService.getParam(id);
@@ -42,6 +47,7 @@ export class ParamsController {
 
   @ApiOperation({ summary: 'Изменить параметр' })
   @ApiResponse({ status: 200, type: Param })
+  @UseGuards(JwtAuthGuard)
   @Put()
   update(@Body() updateParamDto: UpdateParamDto) {
     return this.paramsService.updateParam(updateParamDto);

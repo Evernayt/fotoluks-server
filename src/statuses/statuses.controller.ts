@@ -1,4 +1,5 @@
-import { Body, Controller, Get, Post, Query } from '@nestjs/common';
+import { JwtAuthGuard } from './../auth/guard/jwt-auth.guard';
+import { Body, Controller, Get, Post, Query, UseGuards } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { CreateStatusDto } from './dto/create-status.dto';
 import { GetStatusesDto } from './dto/get-statuses.dto';
@@ -12,6 +13,7 @@ export class StatusesController {
 
   @ApiOperation({ summary: 'Создание статуса' })
   @ApiResponse({ status: 200, type: Status })
+  @UseGuards(JwtAuthGuard)
   @Post()
   create(@Body() createStatusDto: CreateStatusDto) {
     return this.statusesService.createStatus(createStatusDto);
@@ -19,6 +21,7 @@ export class StatusesController {
 
   @ApiOperation({ summary: 'Получить статусы' })
   @ApiResponse({ status: 200, type: [Status] })
+  @UseGuards(JwtAuthGuard)
   @Get()
   getAll(@Query() getStatusesDto: GetStatusesDto) {
     return this.statusesService.getStatuses(getStatusesDto);
