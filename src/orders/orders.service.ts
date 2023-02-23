@@ -320,8 +320,6 @@ export class OrdersService {
       whereOrder = { ...whereOrder, ...whereSearch };
     }
 
-    console.log(whereOrder);
-
     const orders = await this.orderModel.findAndCountAll({
       subQuery: false,
       limit,
