@@ -6,6 +6,7 @@ import {
   WebSocketServer,
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
+import { IWatcher } from './socket.types';
 
 @WebSocketGateway({
   cors: {
@@ -16,16 +17,15 @@ export class SocketGateway {
   @WebSocketServer()
   server: Server;
 
-  users = [];
-  watchers = [];
+  watchers: IWatcher[] = [];
 
-  addWatcher = (watcher: any, socketId: string) => {
-    !this.watchers.some((x) => x.user.id === watcher.user.id) &&
+  addWatcher = (watcher: IWatcher, socketId: string) => {
+    !this.watchers.some((x) => x.employee.id === watcher.employee.id) &&
       this.watchers.push({ ...watcher, socketId });
   };
 
-  removeWathcerByUserId = (userId: number) => {
-    this.watchers = this.watchers.filter((x) => x.user.id !== userId);
+  removeWathcerByEmployeeId = (employeeId: number) => {
+    this.watchers = this.watchers.filter((x) => x.employee.id !== employeeId);
   };
 
   removeWathcer = (socketId: string) => {
@@ -59,10 +59,10 @@ export class SocketGateway {
 
   @SubscribeMessage('removeWatcher')
   handleRemoveWatcher(
-    @MessageBody() userId: number,
+    @MessageBody() employeeId: number,
     @ConnectedSocket() socket: Socket,
   ) {
-    this.removeWathcerByUserId(userId);
+    this.removeWathcerByEmployeeId(employeeId);
     socket.broadcast.emit('getWatchers', this.watchers);
   }
 
