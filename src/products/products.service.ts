@@ -28,8 +28,7 @@ export class ProductsService {
     const offset = page * limit - limit;
     archive = String(archive) === 'true';
 
-    let whereProducts: any = { archive };
-    let whereTypes: any;
+    let where: any = { archive };
 
     if (search) {
       const words = search.match(/[^ ]+/g);
@@ -39,60 +38,46 @@ export class ProductsService {
         or.push({ [Op.like]: '%' + words[index] + '%' });
       }
 
-      if (words.length === 1) {
-        whereTypes = {
-          [Op.or]: [
-            {
-              '$product.name$': {
-                [Op.or]: or,
-              },
+      where = {
+        ...where,
+        [Op.or]: [
+          {
+            name: {
+              [Op.or]: or,
             },
-            {
-              '$product.pluralName$': {
-                [Op.or]: or,
-              },
-            },
-            {
-              '$product.description$': {
-                [Op.or]: or,
-              },
-            },
-            {
-              '$types.name$': {
-                [Op.or]: or,
-              },
-            },
-          ],
-        };
-      } else {
-        whereProducts = {
-          ...whereProducts,
-          name: {
-            [Op.or]: or,
           },
-        };
-
-        whereTypes = {
-          name: {
-            [Op.or]: or,
+          {
+            pluralName: {
+              [Op.or]: or,
+            },
           },
-        };
-      }
+          {
+            description: {
+              [Op.or]: or,
+            },
+          },
+          {
+            '$types.name$': {
+              [Op.or]: or,
+            },
+          },
+        ],
+      };
     }
 
     const products = await this.productModel.findAndCountAll({
+      subQuery: false,
       limit,
       offset,
       distinct: true,
       order: [['name', 'ASC']],
-      where: whereProducts,
+      where,
       include: [
         {
           model: Category,
         },
         {
           model: Type,
-          where: whereTypes,
           include: [
             {
               model: Feature,
