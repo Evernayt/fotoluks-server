@@ -29,42 +29,43 @@ export class UsersService {
 
     if (search) {
       const words = search.match(/[^ ]+/g);
-      const or = [];
+      if (words) {
+        const or = [];
+        words.forEach((word) => {
+          or.push({ [Op.like]: `%${word}%` });
+        });
 
-      for (let index = 0; index < words.length; index++) {
-        or.push({ [Op.like]: '%' + words[index] + '%' });
+        where = {
+          ...where,
+          [Op.or]: [
+            {
+              name: {
+                [Op.or]: or,
+              },
+            },
+            {
+              phone: {
+                [Op.or]: or,
+              },
+            },
+            {
+              email: {
+                [Op.or]: or,
+              },
+            },
+            {
+              vk: {
+                [Op.or]: or,
+              },
+            },
+            {
+              telegram: {
+                [Op.or]: or,
+              },
+            },
+          ],
+        };
       }
-
-      where = {
-        ...where,
-        [Op.or]: [
-          {
-            name: {
-              [Op.or]: or,
-            },
-          },
-          {
-            phone: {
-              [Op.or]: or,
-            },
-          },
-          {
-            email: {
-              [Op.or]: or,
-            },
-          },
-          {
-            vk: {
-              [Op.or]: or,
-            },
-          },
-          {
-            telegram: {
-              [Op.or]: or,
-            },
-          },
-        ],
-      };
     }
 
     const users = await this.userModel.findAndCountAll({

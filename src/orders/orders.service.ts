@@ -281,43 +281,44 @@ export class OrdersService {
 
     if (search) {
       const words = search.match(/[^ ]+/g);
-      const or = [];
+      if (words) {
+        const or = [];
+        words.forEach((word) => {
+          or.push({ [Op.like]: `%${word}%` });
+        });
 
-      for (let index = 0; index < words.length; index++) {
-        or.push({ [Op.like]: '%' + words[index] + '%' });
+        const whereSearch = {
+          [Op.or]: [
+            {
+              id: {
+                [Op.or]: or,
+              },
+            },
+            {
+              sum: {
+                [Op.or]: or,
+              },
+            },
+            {
+              '$finishedProducts.product.name$': {
+                [Op.or]: or,
+              },
+            },
+            {
+              '$finishedProducts.type.name$': {
+                [Op.or]: or,
+              },
+            },
+            {
+              '$user.name$': {
+                [Op.or]: or,
+              },
+            },
+          ],
+        };
+
+        whereOrder = { ...whereOrder, ...whereSearch };
       }
-
-      const whereSearch = {
-        [Op.or]: [
-          {
-            id: {
-              [Op.or]: or,
-            },
-          },
-          {
-            sum: {
-              [Op.or]: or,
-            },
-          },
-          {
-            '$finishedProducts.product.name$': {
-              [Op.or]: or,
-            },
-          },
-          {
-            '$finishedProducts.type.name$': {
-              [Op.or]: or,
-            },
-          },
-          {
-            '$user.name$': {
-              [Op.or]: or,
-            },
-          },
-        ],
-      };
-
-      whereOrder = { ...whereOrder, ...whereSearch };
     }
 
     const orders = await this.orderModel.findAndCountAll({

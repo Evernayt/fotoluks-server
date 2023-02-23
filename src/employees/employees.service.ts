@@ -44,27 +44,28 @@ export class EmployeesService {
 
     if (search) {
       const words = search.match(/[^ ]+/g);
-      const or = [];
+      if (words) {
+        const or = [];
+        words.forEach((word) => {
+          or.push({ [Op.like]: `%${word}%` });
+        });
 
-      for (let index = 0; index < words.length; index++) {
-        or.push({ [Op.like]: '%' + words[index] + '%' });
+        where = {
+          ...where,
+          [Op.or]: [
+            {
+              name: {
+                [Op.or]: or,
+              },
+            },
+            {
+              login: {
+                [Op.or]: or,
+              },
+            },
+          ],
+        };
       }
-
-      where = {
-        ...where,
-        [Op.or]: [
-          {
-            name: {
-              [Op.or]: or,
-            },
-          },
-          {
-            login: {
-              [Op.or]: or,
-            },
-          },
-        ],
-      };
     }
 
     const employees = await this.employeeModel.findAndCountAll({
