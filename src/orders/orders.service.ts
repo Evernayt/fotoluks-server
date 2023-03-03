@@ -253,6 +253,7 @@ export class OrdersService {
     const offset = page * limit - limit;
 
     let whereOrder: any;
+    let whereEmployee: any;
 
     if (statusId && Number(statusId) !== 0) {
       whereOrder = { statusId };
@@ -274,9 +275,8 @@ export class OrdersService {
       };
     }
 
-    let whereEmployee: any;
     if (employeeId) {
-      whereOrder = { ...whereOrder, '$orderMembers.employee.id$': employeeId };
+      whereEmployee = { id: employeeId };
     }
 
     if (search) {
@@ -322,9 +322,9 @@ export class OrdersService {
     }
 
     const orders = await this.orderModel.findAndCountAll({
-      subQuery: false,
-      limit,
-      offset,
+      subQuery: search ? false : undefined,
+      limit: search ? undefined : limit,
+      offset: search ? undefined : offset,
       where: whereOrder,
       distinct: true,
       order: [['id', 'DESC']],

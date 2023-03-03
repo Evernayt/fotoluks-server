@@ -29,17 +29,18 @@ export class EmployeesService {
   }
 
   // DESKTOP
-  async getAllEmployees(getEmployeesDto: GetEmployeesDto) {
+  async getEmployees(getEmployeesDto: GetEmployeesDto) {
     let { limit, page, archive, search, appId } = getEmployeesDto;
     limit = Number(limit) || 1000;
     page = Number(page) || 1;
     const offset = page * limit - limit;
     archive = String(archive) === 'true';
 
-    let where: any = { archive };
+    let whereEmployee: any = { archive };
+    let whereApp: any;
 
     if (appId) {
-      where = { ...where, '$apps.id$': appId };
+      whereApp = { id: appId };
     }
 
     if (search) {
@@ -50,8 +51,8 @@ export class EmployeesService {
           or.push({ [Op.like]: `%${word}%` });
         });
 
-        where = {
-          ...where,
+        whereEmployee = {
+          ...whereEmployee,
           [Op.or]: [
             {
               name: {
@@ -69,14 +70,15 @@ export class EmployeesService {
     }
 
     const employees = await this.employeeModel.findAndCountAll({
-      subQuery: false,
-      limit,
-      offset,
-      where,
+      subQuery: search ? false : undefined,
+      limit: search ? undefined : limit,
+      offset: search ? undefined : offset,
+      where: whereEmployee,
       distinct: true,
       include: [
         {
           model: App,
+          where: whereApp,
         },
         {
           model: Department,

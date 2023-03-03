@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
-import { Op } from 'sequelize';
+import { Op, QueryTypes } from 'sequelize';
+import { Sequelize } from 'sequelize-typescript';
 import { Category } from 'src/categories/categories.model';
 import { Feature } from 'src/features/features.model';
 import { Param } from 'src/params/params.model';
@@ -67,9 +68,9 @@ export class ProductsService {
     }
 
     const products = await this.productModel.findAndCountAll({
-      subQuery: false,
-      limit,
-      offset,
+      subQuery: search ? false : undefined,
+      limit: search ? undefined : limit,
+      offset: search ? undefined : offset,
       distinct: true,
       order: [['name', 'ASC']],
       where,

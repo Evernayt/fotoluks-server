@@ -82,14 +82,25 @@ export class TypesService {
                 [Op.or]: or,
               },
             },
+            {
+              '$product.name$': {
+                [Op.or]: or,
+              },
+            },
+            {
+              '$product.category.name$': {
+                [Op.or]: or,
+              },
+            },
           ],
         };
       }
     }
 
     const types = await this.typeModel.findAndCountAll({
-      limit,
-      offset,
+      subQuery: search ? false : undefined,
+      limit: search ? undefined : limit,
+      offset: search ? undefined : offset,
       where,
       distinct: true,
       order: [['name', 'ASC']],
