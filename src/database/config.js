@@ -2,7 +2,7 @@ require('dotenv').config();
 
 module.exports = {
   development: {
-    dialect: 'mysql',
+    dialect: 'mariadb',
     host: process.env.DB_HOST,
     port: Number(process.env.DB_HOST),
     username: process.env.DB_USER,
@@ -10,7 +10,7 @@ module.exports = {
     database: process.env.DB_NAME,
   },
   production: {
-    dialect: 'mysql',
+    dialect: 'mariadb',
     host: process.env.DB_HOST,
     port: Number(process.env.DB_HOST),
     username: process.env.DB_USER,

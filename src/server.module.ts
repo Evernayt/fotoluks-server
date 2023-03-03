@@ -35,7 +35,7 @@ import { GatewayModule } from './gateway/gateway.module';
       rootPath: path.resolve(__dirname, '../static'),
     }),
     SequelizeModule.forRoot({
-      dialect: 'mysql',
+      dialect: 'mariadb',
       host: process.env.DB_HOST,
       port: Number(process.env.DB_HOST),
       username: process.env.DB_USER,
