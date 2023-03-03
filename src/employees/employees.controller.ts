@@ -28,7 +28,7 @@ export class EmployeesController {
   @UseGuards(JwtAuthGuard)
   @Get()
   getAll(@Query() getEmployeesDto: GetEmployeesDto) {
-    return this.employeesService.getAllEmployees(getEmployeesDto);
+    return this.employeesService.getEmployees(getEmployeesDto);
   }
 
   @ApiOperation({ summary: 'Получить сотрудника' })
