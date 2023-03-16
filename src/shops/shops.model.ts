@@ -1,6 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Column, DataType, HasMany, Model, Table } from 'sequelize-typescript';
 import { Order } from 'src/orders/orders.model';
+import { Task } from 'src/tasks/tasks.model';
 
 interface ShopCreationAttrs {
   name: string;
@@ -9,7 +10,7 @@ interface ShopCreationAttrs {
   abbreviation: string;
 }
 
-@Table({ tableName: 'shops' })
+@Table({ tableName: 'shops', createdAt: false, updatedAt: false })
 export class Shop extends Model<Shop, ShopCreationAttrs> {
   @ApiProperty({ example: 1, description: 'ID филиала' })
   @Column({
@@ -47,4 +48,7 @@ export class Shop extends Model<Shop, ShopCreationAttrs> {
 
   @HasMany(() => Order, { foreignKey: 'shopId' })
   orders: Order[];
+
+  @HasMany(() => Task, { foreignKey: 'shopId' })
+  tasks: Task[];
 }

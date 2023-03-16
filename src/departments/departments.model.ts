@@ -1,8 +1,10 @@
+import { Task } from 'src/tasks/tasks.model';
 import { ApiProperty } from '@nestjs/swagger';
 import {
   BelongsToMany,
   Column,
   DataType,
+  HasMany,
   Model,
   Table,
 } from 'sequelize-typescript';
@@ -13,7 +15,7 @@ interface DepartmentCreationAttrs {
   name: string;
 }
 
-@Table({ tableName: 'departments' })
+@Table({ tableName: 'departments', createdAt: false, updatedAt: false })
 export class Department extends Model<Department, DepartmentCreationAttrs> {
   @ApiProperty({ example: 1, description: 'ID отдела' })
   @Column({
@@ -33,4 +35,7 @@ export class Department extends Model<Department, DepartmentCreationAttrs> {
 
   @BelongsToMany(() => Employee, () => EmployeeDepartments)
   employees: Employee[];
+
+  @HasMany(() => Task, { foreignKey: 'departmentId' })
+  tasks: Task[];
 }

@@ -1,3 +1,5 @@
+import { TaskMembersModule } from './task-members/task-members.module';
+import { TaskMessagesModule } from './task-messages/task-messages.module';
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { SequelizeModule } from '@nestjs/sequelize';
@@ -27,6 +29,7 @@ import { FavoritesModule } from './favorites/favorites.module';
 import { OrderMembersModule } from './order-members/order-members.module';
 import { FavoriteParamsModule } from './favorite-params/favorite-params.module';
 import { GatewayModule } from './gateway/gateway.module';
+import { TasksModule } from './tasks/tasks.module';
 
 @Module({
   imports: [
@@ -68,6 +71,9 @@ import { GatewayModule } from './gateway/gateway.module';
     OrderMembersModule,
     FavoriteParamsModule,
     GatewayModule,
+    TasksModule,
+    TaskMessagesModule,
+    TaskMembersModule,
   ],
 })
 export class ServerModule {}

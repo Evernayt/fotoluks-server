@@ -9,6 +9,13 @@ export class GetDepartmentsDto {
 
   @ApiProperty({
     example: 'false',
+    description: 'Добавить в запрос Общий отдел',
+    required: false,
+  })
+  readonly isIncludeGeneral: boolean;
+
+  @ApiProperty({
+    example: 'false',
     description: 'В архиве или нет',
     required: false,
   })

@@ -1,3 +1,5 @@
+import { TaskMessage } from './../task-messages/task-messages.model';
+import { TaskMember } from './../task-members/task-members.model';
 import { ApiProperty } from '@nestjs/swagger';
 import {
   BelongsToMany,
@@ -16,6 +18,7 @@ import { EmployeeNotifications } from 'src/notifications/employee-notifications.
 import { Notification } from 'src/notifications/notifications.model';
 import { OrderInfo } from 'src/order-infos/order-infos.model';
 import { OrderMember } from 'src/order-members/order-members.model';
+import { Task } from 'src/tasks/tasks.model';
 
 interface EmployeeCreationAttrs {
   login: string;
@@ -69,4 +72,16 @@ export class Employee extends Model<Employee, EmployeeCreationAttrs> {
 
   @HasMany(() => Favorite, { foreignKey: 'employeeId' })
   favorites: Favorite[];
+
+  @HasMany(() => Task, { foreignKey: 'creatorId' })
+  tasks: Task[];
+
+  @HasMany(() => Task, { foreignKey: 'executorId' })
+  tasks2: Task[];
+
+  @HasMany(() => TaskMember, { foreignKey: 'employeeId' })
+  taskMembers: TaskMember[];
+
+  @HasMany(() => TaskMessage, { foreignKey: 'employeeId' })
+  taskMessages: Task[];
 }

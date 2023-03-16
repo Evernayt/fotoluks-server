@@ -10,6 +10,9 @@ export class CreateNotificationDto {
   })
   readonly text: string;
 
+  @ApiProperty({ example: 1, description: 'ID приложения' })
+  readonly appId: number;
+
   @ApiProperty({ example: [1, 2], description: 'ID сотрудников' })
   readonly employeeIds: number[];
 }

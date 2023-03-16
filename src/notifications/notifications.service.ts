@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { Sequelize } from 'sequelize-typescript';
+import { App } from 'src/apps/apps.model';
 import { Employee } from 'src/employees/employees.model';
 import { CreateNotificationDto } from './dto/create-notification.dto';
 import { GetNotificationsDto } from './dto/get-notifications.dto';
@@ -18,12 +19,12 @@ export class NotificationsService {
 
   // DESKTOP
   async createNotification(createNotificationDto: CreateNotificationDto) {
-    const { title, text, employeeIds } = createNotificationDto;
+    const { title, text, employeeIds, appId } = createNotificationDto;
 
     const t = await this.sequelize.transaction();
     try {
       const notification = await this.notificationModel.create(
-        { title, text },
+        { title, text, appId },
         { transaction: t },
       );
 
@@ -68,6 +69,9 @@ export class NotificationsService {
           model: Employee,
           where: whereEmployee,
           attributes: [],
+        },
+        {
+          model: App,
         },
       ],
     });

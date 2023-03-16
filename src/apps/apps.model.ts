@@ -3,10 +3,12 @@ import {
   BelongsToMany,
   Column,
   DataType,
+  HasMany,
   Model,
   Table,
 } from 'sequelize-typescript';
 import { Employee } from 'src/employees/employees.model';
+import { Notification } from 'src/notifications/notifications.model';
 import { EmployeeApps } from './employee-apps.model';
 
 interface AppCreationAttrs {
@@ -14,7 +16,7 @@ interface AppCreationAttrs {
   description: string;
 }
 
-@Table({ tableName: 'apps' })
+@Table({ tableName: 'apps', createdAt: false, updatedAt: false })
 export class App extends Model<App, AppCreationAttrs> {
   @ApiProperty({ example: 1, description: 'ID приложения' })
   @Column({
@@ -31,6 +33,9 @@ export class App extends Model<App, AppCreationAttrs> {
   @ApiProperty({ example: 'Заказы', description: 'Описание приложения' })
   @Column({ type: DataType.STRING, allowNull: false })
   description: string;
+
+  @HasMany(() => Notification, { foreignKey: 'appId' })
+  notifications: Notification[];
 
   @BelongsToMany(() => Employee, () => EmployeeApps)
   employees: Employee[];

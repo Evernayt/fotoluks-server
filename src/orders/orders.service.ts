@@ -287,7 +287,7 @@ export class OrdersService {
           or.push({ [Op.like]: `%${word}%` });
         });
 
-        const whereSearch = {
+        whereOrder = {
           [Op.or]: [
             {
               id: {
@@ -316,8 +316,6 @@ export class OrdersService {
             },
           ],
         };
-
-        whereOrder = { ...whereOrder, ...whereSearch };
       }
     }
 
