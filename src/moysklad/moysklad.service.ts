@@ -22,6 +22,10 @@ import ProductAPI from './api/ProductAPI/ProductAPI';
 import { GetStocksDto } from './api/StockAPI/dto/get-stocks.dto';
 import StockAPI from './api/StockAPI/StockAPI';
 import StoreAPI from './api/StoreAPI/StoreAPI';
+import { EditSupplyDto } from './api/SupplyAPI/dto/edit-supply.dto';
+import { GetSuppliesDto } from './api/SupplyAPI/dto/get-supplies.dto';
+import { GetSupplyPositionsDto } from './api/SupplyAPI/dto/get-supply-positions.dto';
+import SupplyAPI from './api/SupplyAPI/SupplyAPI';
 import { UpdateVariantDto } from './api/VariantAPI/dto/update-variant.dto';
 import VariantAPI from './api/VariantAPI/VariantAPI';
 
@@ -118,6 +122,11 @@ export class MoyskladService {
     return data;
   }
 
+  async updateProducts(products: UpdateProductDto[]) {
+    const data = ProductAPI.updateMultiple(products);
+    return data;
+  }
+
   // Variant
   async getVariant(id: string) {
     const data = VariantAPI.getOne(id);
@@ -132,6 +141,22 @@ export class MoyskladService {
   // Stock
   async getStocks(getStocksDto: GetStocksDto) {
     const data = StockAPI.getAll(getStocksDto);
+    return data;
+  }
+
+  // Supply
+  async getSupplies(getSuppliesDto: GetSuppliesDto) {
+    const data = SupplyAPI.getAll(getSuppliesDto);
+    return data;
+  }
+
+  async getSupplyPositions(getSupplyPositionsDto: GetSupplyPositionsDto) {
+    const data = SupplyAPI.getPositions(getSupplyPositionsDto);
+    return data;
+  }
+
+  async editSupply(editSupplyDto: EditSupplyDto) {
+    const data = SupplyAPI.edit(editSupplyDto);
     return data;
   }
 }

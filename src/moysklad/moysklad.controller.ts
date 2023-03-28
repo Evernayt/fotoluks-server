@@ -29,6 +29,9 @@ import { UpdateProductDto } from './api/ProductAPI/dto/update-product.dto';
 import { GetStocksDto } from './api/StockAPI/dto/get-stocks.dto';
 import { UpdateVariantDto } from './api/VariantAPI/dto/update-variant.dto';
 import { MoyskladService } from './moysklad.service';
+import { GetSuppliesDto } from './api/SupplyAPI/dto/get-supplies.dto';
+import { GetSupplyPositionsDto } from './api/SupplyAPI/dto/get-supply-positions.dto';
+import { EditSupplyDto } from './api/SupplyAPI/dto/edit-supply.dto';
 
 @ApiTags('МойСклад')
 @Controller('moysklad')
@@ -160,6 +163,13 @@ export class MoyskladController {
     return this.moyskladService.updateProduct(updateProductDto);
   }
 
+  @ApiOperation({ summary: 'Массовое изменение товаров' })
+  @UseGuards(JwtAuthGuard)
+  @Put('product/multiple')
+  updateProducts(@Body() products: UpdateProductDto[]) {
+    return this.moyskladService.updateProducts(products);
+  }
+
   // Variant
   @ApiOperation({ summary: 'Получение модификации' })
   @UseGuards(JwtAuthGuard)
@@ -181,5 +191,27 @@ export class MoyskladController {
   @Get('stock')
   getStocks(@Query() getStocksDto: GetStocksDto) {
     return this.moyskladService.getStocks(getStocksDto);
+  }
+
+  // Supply
+  @ApiOperation({ summary: 'Получение приемок' })
+  @UseGuards(JwtAuthGuard)
+  @Get('supply')
+  getSupplies(@Query() getSuppliesDto: GetSuppliesDto) {
+    return this.moyskladService.getSupplies(getSuppliesDto);
+  }
+
+  @ApiOperation({ summary: 'Получение позиций приемки' })
+  @UseGuards(JwtAuthGuard)
+  @Get('supply/positions')
+  getSupplyPositions(@Query() getSupplyPositionsDto: GetSupplyPositionsDto) {
+    return this.moyskladService.getSupplyPositions(getSupplyPositionsDto);
+  }
+
+  @ApiOperation({ summary: 'Изменить приемку' })
+  @UseGuards(JwtAuthGuard)
+  @Put('supply')
+  editSupply(@Body() editSupplyDto: EditSupplyDto) {
+    return this.moyskladService.editSupply(editSupplyDto);
   }
 }
