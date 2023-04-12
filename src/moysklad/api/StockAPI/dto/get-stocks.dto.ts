@@ -4,16 +4,21 @@ export class GetStocksDto {
   @ApiProperty({
     example: 100,
     description: 'Максимальное количество сущностей для извлечения',
-    required: false,
   })
   readonly limit: number;
 
   @ApiProperty({
     example: 0,
     description: 'Отступ в выдаваемом списке сущностей',
-    required: false,
   })
   readonly offset: number;
+
+  @ApiProperty({
+    example: 'ручка',
+    description: 'Поиск',
+    required: false,
+  })
+  readonly search: string;
 
   @ApiProperty({ example: 'product', description: 'Тип', required: false })
   readonly type: string;
