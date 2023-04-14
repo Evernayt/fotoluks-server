@@ -2,6 +2,7 @@ import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import AuthAPI from './moysklad/api/AuthAPI/AuthAPI';
 import { ServerModule } from './server.module';
+import * as bodyParser from 'body-parser';
 
 async function bootstrap() {
   const PORT = process.env.PORT || 5000;
@@ -9,6 +10,8 @@ async function bootstrap() {
   const MOYSKLAD_PASSWORD = process.env.MOYSKLAD_PASSWORD;
 
   const server = await NestFactory.create(ServerModule, { cors: true });
+  server.use(bodyParser.json({ limit: '50mb' }));
+  server.use(bodyParser.urlencoded({ extended: true, limit: '50mb' }));
 
   const config = new DocumentBuilder()
     .setTitle('fotoluks-server')
