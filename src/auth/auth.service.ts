@@ -131,4 +131,14 @@ export class AuthService {
     });
     return this.generateTokenEmployee(employee);
   }
+
+  async checkAuthEmployee(login: string) {
+    const employee = await this.employeesService.getEmployeeByLogin(login);
+    if (employee && employee.archive) {
+      throw new UnauthorizedException({
+        message: 'Пользователь заблокирован',
+      });
+    }
+    return this.generateTokenEmployee(employee);
+  }
 }
