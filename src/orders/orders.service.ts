@@ -267,6 +267,9 @@ export class OrdersService {
     }
 
     if (startDate || endDate) {
+      if (!endDate) {
+        endDate = '9999-12-01T00:00';
+      }
       whereOrder = {
         ...whereOrder,
         createdAt: {
