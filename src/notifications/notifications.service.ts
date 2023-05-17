@@ -7,6 +7,7 @@ import { CreateNotificationDto } from './dto/create-notification.dto';
 import { GetNotificationsDto } from './dto/get-notifications.dto';
 import { EmployeeNotifications } from './employee-notifications.model';
 import { Notification } from './notifications.model';
+import { NotificationCategory } from 'src/notification-categories/notification-categories.model';
 
 @Injectable()
 export class NotificationsService {
@@ -19,12 +20,13 @@ export class NotificationsService {
 
   // DESKTOP
   async createNotification(createNotificationDto: CreateNotificationDto) {
-    const { title, text, employeeIds, appId } = createNotificationDto;
+    const { title, text, employeeIds, appId, notificationCategoryId } =
+      createNotificationDto;
 
     const t = await this.sequelize.transaction();
     try {
       const notification = await this.notificationModel.create(
-        { title, text, appId },
+        { title, text, appId, notificationCategoryId },
         { transaction: t },
       );
 
@@ -72,6 +74,9 @@ export class NotificationsService {
         },
         {
           model: App,
+        },
+        {
+          model: NotificationCategory,
         },
       ],
     });

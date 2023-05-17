@@ -30,6 +30,7 @@ import { OrderMembersModule } from './order-members/order-members.module';
 import { FavoriteParamsModule } from './favorite-params/favorite-params.module';
 import { GatewayModule } from './gateway/gateway.module';
 import { TasksModule } from './tasks/tasks.module';
+import { NotificationCategoriesModule } from './notification-categories/notification-categories.module';
 
 @Module({
   imports: [
@@ -74,6 +75,7 @@ import { TasksModule } from './tasks/tasks.module';
     TasksModule,
     TaskMessagesModule,
     TaskMembersModule,
+    NotificationCategoriesModule,
   ],
 })
 export class ServerModule {}

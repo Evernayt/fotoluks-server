@@ -13,6 +13,9 @@ export class CreateNotificationDto {
   @ApiProperty({ example: 1, description: 'ID приложения' })
   readonly appId: number;
 
+  @ApiProperty({ example: 1, description: 'ID категории уведомления' })
+  readonly notificationCategoryId: number;
+
   @ApiProperty({ example: [1, 2], description: 'ID сотрудников' })
   readonly employeeIds: number[];
 }

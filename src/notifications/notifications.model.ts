@@ -10,11 +10,13 @@ import {
 import { App } from 'src/apps/apps.model';
 import { Employee } from 'src/employees/employees.model';
 import { EmployeeNotifications } from './employee-notifications.model';
+import { NotificationCategory } from 'src/notification-categories/notification-categories.model';
 
 interface NotificationCreationAttrs {
   title: string;
   text: string;
   appId: number;
+  notificationCategoryId: number;
 }
 
 @Table({ tableName: 'notifications' })
@@ -43,6 +45,11 @@ export class Notification extends Model<
 
   @BelongsTo(() => App, { foreignKey: 'appId' })
   app: App;
+
+  @BelongsTo(() => NotificationCategory, {
+    foreignKey: 'notificationCategoryId',
+  })
+  notificationCategory: NotificationCategory;
 
   @BelongsToMany(() => Employee, () => EmployeeNotifications)
   employees: Employee[];
