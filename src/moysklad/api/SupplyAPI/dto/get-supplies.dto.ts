@@ -12,4 +12,12 @@ export class GetSuppliesDto {
     description: 'Отступ в выдаваемом списке сущностей',
   })
   readonly offset: number;
+
+  @ApiProperty({
+    example:
+      'https://online.moysklad.ru/api/remap/1.2/entity/product/3e3b6cad-4450-11eb-0a80-07c5000d9516',
+    description: 'Ссылка на товар',
+    required: false,
+  })
+  readonly productHref: string;
 }

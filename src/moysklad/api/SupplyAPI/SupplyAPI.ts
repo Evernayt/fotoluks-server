@@ -10,13 +10,16 @@ export default class SupplyAPI {
   static async getAll(
     getSuppliesDto: GetSuppliesDto,
   ): Promise<IMoyskladData<ISupply>> {
-    let { limit, offset } = getSuppliesDto;
+    let { limit, offset, productHref } = getSuppliesDto;
     limit = limit || 1000;
     offset = offset || 0;
 
-    const { data } = await $authHost.get(
-      `entity/supply/?limit=${limit}&offset=${offset}&order=created,desc`,
-    );
+    let url = `entity/supply/?limit=${limit}&offset=${offset}&order=created,desc`;
+    if (productHref) {
+      url += `&filter=assortment=${productHref}&expand=agent`;
+    }
+
+    const { data } = await $authHost.get(url);
     return data;
   }
 
