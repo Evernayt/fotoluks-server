@@ -6,11 +6,7 @@ interface NotificationCategoryCreationAttrs {
   name: string;
 }
 
-@Table({
-  tableName: 'notification_categories',
-  createdAt: false,
-  updatedAt: false,
-})
+@Table({ tableName: 'notification_categories' })
 export class NotificationCategory extends Model<
   NotificationCategory,
   NotificationCategoryCreationAttrs
