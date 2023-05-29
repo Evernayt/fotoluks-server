@@ -7,6 +7,14 @@ import {
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 import { IWatcher } from './socket.types';
+import { messaging } from 'firebase-admin';
+import { Message } from 'firebase-admin/lib/messaging/messaging-api';
+import { Notification } from 'src/notifications/notifications.model';
+
+interface INotificationInfo {
+  notification: Notification;
+  employeeIds: number[];
+}
 
 @WebSocketGateway({
   cors: {
@@ -34,10 +42,19 @@ export class SocketGateway {
 
   @SubscribeMessage('sendNotification')
   handleSendNotification(
-    @MessageBody() notification: any,
+    @MessageBody() data: INotificationInfo,
     @ConnectedSocket() socket: Socket,
   ) {
-    socket.broadcast.emit('getNotification', notification);
+    socket.broadcast.emit('getNotification', data);
+
+    const message: Message = {
+      data: { data: JSON.stringify(data) },
+      topic: 'fotoluks-manager',
+      android: { priority: 'high' },
+    };
+    messaging()
+      .send(message)
+      .catch((e) => console.log('Firebase messaging error', e));
   }
 
   @SubscribeMessage('updateOrder')
