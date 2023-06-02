@@ -31,6 +31,7 @@ import { FavoriteParamsModule } from './favorite-params/favorite-params.module';
 import { GatewayModule } from './gateway/gateway.module';
 import { TasksModule } from './tasks/tasks.module';
 import { NotificationCategoriesModule } from './notification-categories/notification-categories.module';
+import { RolesModule } from './roles/roles.module';
 
 @Module({
   imports: [
@@ -76,6 +77,7 @@ import { NotificationCategoriesModule } from './notification-categories/notifica
     TaskMessagesModule,
     TaskMembersModule,
     NotificationCategoriesModule,
+    RolesModule,
   ],
 })
 export class ServerModule {}

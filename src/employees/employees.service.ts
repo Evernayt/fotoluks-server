@@ -13,6 +13,7 @@ import { Employee } from './employees.model';
 import * as bcrypt from 'bcryptjs';
 import { EmployeeApps } from 'src/apps/employee-apps.model';
 import { EmployeeDepartments } from 'src/departments/employee-departments.model';
+import { Role } from 'src/roles/roles.model';
 
 @Injectable()
 export class EmployeesService {
@@ -83,6 +84,9 @@ export class EmployeesService {
         {
           model: Department,
         },
+        {
+          model: Role,
+        },
       ],
     });
     return employees;
@@ -97,6 +101,9 @@ export class EmployeesService {
         },
         {
           model: Department,
+        },
+        {
+          model: Role,
         },
       ],
     });
@@ -113,6 +120,9 @@ export class EmployeesService {
         },
         {
           model: Department,
+        },
+        {
+          model: Role,
         },
       ],
     });

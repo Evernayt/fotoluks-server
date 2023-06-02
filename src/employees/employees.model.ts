@@ -2,6 +2,7 @@ import { TaskMessage } from './../task-messages/task-messages.model';
 import { TaskMember } from './../task-members/task-members.model';
 import { ApiProperty } from '@nestjs/swagger';
 import {
+  BelongsTo,
   BelongsToMany,
   Column,
   DataType,
@@ -19,6 +20,7 @@ import { Notification } from 'src/notifications/notifications.model';
 import { OrderInfo } from 'src/order-infos/order-infos.model';
 import { OrderMember } from 'src/order-members/order-members.model';
 import { Task } from 'src/tasks/tasks.model';
+import { Role } from 'src/roles/roles.model';
 
 interface EmployeeCreationAttrs {
   login: string;
@@ -84,4 +86,7 @@ export class Employee extends Model<Employee, EmployeeCreationAttrs> {
 
   @HasMany(() => TaskMessage, { foreignKey: 'employeeId' })
   taskMessages: Task[];
+
+  @BelongsTo(() => Role, { foreignKey: 'roleId' })
+  role: Role;
 }
