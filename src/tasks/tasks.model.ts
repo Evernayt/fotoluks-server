@@ -6,7 +6,6 @@ import { Employee } from 'src/employees/employees.model';
 import { ApiProperty } from '@nestjs/swagger';
 import {
   BelongsTo,
-  BelongsToMany,
   Column,
   DataType,
   HasMany,
@@ -32,11 +31,15 @@ export class Task extends Model<Task, TaskCreationAttrs> {
   })
   id: number;
 
-  @ApiProperty({ example: 'Новая задача', description: 'Заголовок задачи' })
+  @ApiProperty({ example: 'Новая задача', description: 'Наименование задачи' })
+  @Column({ type: DataType.TEXT, allowNull: false })
+  name: string;
+
+  @ApiProperty({ example: 'Что не так', description: 'Заголовок задачи' })
   @Column({ type: DataType.TEXT, allowNull: false })
   title: string;
 
-  @ApiProperty({ example: 'Описание', description: 'Описание задачи' })
+  @ApiProperty({ example: 'Что сделать', description: 'Описание задачи' })
   @Column({ type: DataType.TEXT, allowNull: false })
   description: string;
 
@@ -54,6 +57,10 @@ export class Task extends Model<Task, TaskCreationAttrs> {
   })
   @Column({ type: DataType.DATE })
   completedDate: string;
+
+  @ApiProperty({ example: 'Примечание', description: 'Примечание завершения' })
+  @Column({ type: DataType.TEXT, allowNull: false })
+  completionNote: string;
 
   @ApiProperty({ example: 'false', description: 'В архиве или нет' })
   @Column({ type: DataType.BOOLEAN, allowNull: false, defaultValue: false })

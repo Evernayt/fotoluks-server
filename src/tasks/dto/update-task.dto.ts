@@ -6,13 +6,20 @@ export class UpdateTaskDto {
 
   @ApiProperty({
     example: 'Новая задача',
+    description: 'Наименование задачи',
+    required: false,
+  })
+  readonly name: string;
+
+  @ApiProperty({
+    example: 'Что не так',
     description: 'Заголовок задачи',
     required: false,
   })
   readonly title: string;
 
   @ApiProperty({
-    example: 'Описание',
+    example: 'Что сделать',
     description: 'Описание задачи',
     required: false,
   })
@@ -38,6 +45,13 @@ export class UpdateTaskDto {
     required: false,
   })
   readonly completedDate: string | null;
+
+  @ApiProperty({
+    example: 'Примечание',
+    description: 'Примечание завершения',
+    required: false,
+  })
+  readonly completionNote: string;
 
   @ApiProperty({
     example: 'false',

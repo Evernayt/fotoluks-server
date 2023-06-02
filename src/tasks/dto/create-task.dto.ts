@@ -1,10 +1,13 @@
 import { ApiProperty } from '@nestjs/swagger';
 
 export class CreateTaskDto {
-  @ApiProperty({ example: 'Новая задача', description: 'Заголовок задачи' })
+  @ApiProperty({ example: 'Новая задача', description: 'Наименование задачи' })
+  readonly name: string;
+
+  @ApiProperty({ example: 'Что не так', description: 'Заголовок задачи' })
   readonly title: string;
 
-  @ApiProperty({ example: 'Описание', description: 'Описание задачи' })
+  @ApiProperty({ example: 'Что сделать', description: 'Описание задачи' })
   readonly description: string;
 
   @ApiProperty({ example: 'false', description: 'Срочно или нет' })
