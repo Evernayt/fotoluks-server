@@ -39,4 +39,25 @@ export class GetTasksDto {
     required: false,
   })
   readonly search: string;
+
+  @ApiProperty({
+    example: '2022-09-04 16:45:00',
+    description: 'Дата начала',
+    required: false,
+  })
+  readonly startDate: string;
+
+  @ApiProperty({
+    example: '2022-09-04 16:45:00',
+    description: 'Дата окончания',
+    required: false,
+  })
+  readonly endDate: string;
+
+  @ApiProperty({
+    example: 'false',
+    description: 'Срочно или нет',
+    required: false,
+  })
+  readonly urgent: boolean;
 }

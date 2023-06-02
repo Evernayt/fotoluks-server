@@ -71,11 +71,15 @@ export class TasksService {
       shopIds,
       departmentIds,
       search,
+      startDate,
+      endDate,
+      urgent,
     } = getTasksDto;
     limit = Number(limit) || 1000;
     page = Number(page) || 1;
     const offset = page * limit - limit;
     archive = String(archive) === 'true';
+    urgent = String(urgent) === 'true';
 
     let where: any = { archive };
     let whereEmployee: any;
@@ -113,6 +117,22 @@ export class TasksService {
 
     if (employeeId) {
       whereEmployee = { id: employeeId };
+    }
+
+    if (startDate || endDate) {
+      if (!endDate) {
+        endDate = '9999-12-01T00:00';
+      }
+      where = {
+        ...where,
+        createdAt: {
+          [Op.between]: [startDate, endDate],
+        },
+      };
+    }
+
+    if (urgent) {
+      where = { ...where, urgent };
     }
 
     if (search) {
