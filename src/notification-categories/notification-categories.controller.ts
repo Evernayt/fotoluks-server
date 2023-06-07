@@ -14,7 +14,7 @@ export class NotificationCategoriesController {
 
   @ApiOperation({ summary: 'Создание категории уведомления' })
   @ApiResponse({ status: 200, type: NotificationCategory })
-  //@UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard)
   @Post()
   create(@Body() createNotificationCategoryDto: CreateNotificationCategoryDto) {
     return this.notificationCategoriesService.createNotificationCategory(

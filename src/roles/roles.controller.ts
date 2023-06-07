@@ -13,7 +13,7 @@ export class RolesController {
 
   @ApiOperation({ summary: 'Создание роли' })
   @ApiResponse({ status: 200, type: Role })
-  //@UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard)
   @Post()
   create(@Body() createRoleDto: CreateRoleDto) {
     return this.rolesService.createRole(createRoleDto);
@@ -21,7 +21,7 @@ export class RolesController {
 
   @ApiOperation({ summary: 'Получить роли' })
   @ApiResponse({ status: 200, type: [Role] })
-  //@UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard)
   @Get()
   getAll(@Query() getRolesDto: GetRolesDto) {
     return this.rolesService.getRoles(getRolesDto);
