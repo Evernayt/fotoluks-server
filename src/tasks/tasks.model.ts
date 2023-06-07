@@ -12,6 +12,7 @@ import {
   Model,
   Table,
 } from 'sequelize-typescript';
+import { TaskSubtask } from 'src/task-subtasks/task-subtasks.model';
 
 interface TaskCreationAttrs {
   title: string;
@@ -83,4 +84,7 @@ export class Task extends Model<Task, TaskCreationAttrs> {
 
   @HasMany(() => TaskMessage, { foreignKey: 'taskId' })
   taskMessages: TaskMessage[];
+
+  @HasMany(() => TaskSubtask, { foreignKey: 'taskId' })
+  taskSubtasks: TaskSubtask[];
 }

@@ -1,4 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { UpdateTaskSubtaskDto } from 'src/task-subtasks/dto/update-task-subtask.dto';
+import { TaskSubtask } from 'src/task-subtasks/task-subtasks.model';
 
 export class UpdateTaskDto {
   @ApiProperty({ example: 1, description: 'ID задачи' })
@@ -86,4 +88,25 @@ export class UpdateTaskDto {
     required: false,
   })
   readonly taskMembersForDelete: number[];
+
+  @ApiProperty({
+    example: 1,
+    description: 'Текст подзадач для создания',
+    required: false,
+  })
+  readonly taskSubtasksForCreate: TaskSubtask[];
+
+  @ApiProperty({
+    example: 1,
+    description: 'Подзадачи для обновления',
+    required: false,
+  })
+  readonly taskSubtasksForUpdate: UpdateTaskSubtaskDto[];
+
+  @ApiProperty({
+    example: 1,
+    description: 'ID подзадач для удаления',
+    required: false,
+  })
+  readonly taskSubtasksForDelete: number[];
 }

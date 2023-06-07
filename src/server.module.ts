@@ -32,6 +32,7 @@ import { GatewayModule } from './gateway/gateway.module';
 import { TasksModule } from './tasks/tasks.module';
 import { NotificationCategoriesModule } from './notification-categories/notification-categories.module';
 import { RolesModule } from './roles/roles.module';
+import { TaskSubtasksModule } from './task-subtasks/task-subtasks.module';
 
 @Module({
   imports: [
@@ -78,6 +79,7 @@ import { RolesModule } from './roles/roles.module';
     TaskMembersModule,
     NotificationCategoriesModule,
     RolesModule,
+    TaskSubtasksModule,
   ],
 })
 export class ServerModule {}

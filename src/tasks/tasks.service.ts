@@ -12,18 +12,23 @@ import { InjectModel } from '@nestjs/sequelize';
 import { Sequelize } from 'sequelize-typescript';
 import { Transaction } from 'sequelize';
 import { Op } from 'sequelize';
+import { CreateTaskSubtaskDto } from 'src/task-subtasks/dto/create-task-subtask.dto';
+import { TaskSubtasksService } from 'src/task-subtasks/task-subtasks.service';
+import { TaskSubtask } from 'src/task-subtasks/task-subtasks.model';
 
 @Injectable()
 export class TasksService {
   constructor(
     @InjectModel(Task) private taskModel: typeof Task,
     @InjectModel(TaskMember) private taskMemberModel: typeof TaskMember,
+    @InjectModel(TaskSubtask) private taskSubtaskModel: typeof TaskSubtask,
+    private taskSubtasksService: TaskSubtasksService,
     private sequelize: Sequelize,
   ) {}
 
   // DESKTOP
   async createTask(createTaskDto: CreateTaskDto) {
-    const { taskMembersForCreate } = createTaskDto;
+    const { taskMembersForCreate, taskSubtasksForCreate } = createTaskDto;
 
     const t = await this.sequelize.transaction();
     let task: Task;
@@ -47,6 +52,22 @@ export class TasksService {
         });
 
         await this.taskMemberModel.bulkCreate(taskMembers, {
+          transaction: t,
+          ignoreDuplicates: true,
+        });
+      }
+
+      // CREATE TASK SUBTASKS
+      if (taskSubtasksForCreate?.length) {
+        const taskSubtasks: CreateTaskSubtaskDto[] = [];
+        taskSubtasksForCreate.forEach((taskSubtask, index) => {
+          taskSubtasks[index] = {
+            taskId: task.id,
+            text: taskSubtask.text,
+          };
+        });
+
+        await this.taskSubtaskModel.bulkCreate(taskSubtasks, {
           transaction: t,
           ignoreDuplicates: true,
         });
@@ -227,6 +248,9 @@ export class TasksService {
           model: Employee,
           as: 'executor',
         },
+        {
+          model: TaskSubtask,
+        },
       ],
     });
     return task;
@@ -234,7 +258,14 @@ export class TasksService {
 
   // DESKTOP
   async updateTask(updateTaskDto: UpdateTaskDto) {
-    const { id, taskMembersForCreate, taskMembersForDelete } = updateTaskDto;
+    const {
+      id,
+      taskMembersForCreate,
+      taskMembersForDelete,
+      taskSubtasksForCreate,
+      taskSubtasksForUpdate,
+      taskSubtasksForDelete,
+    } = updateTaskDto;
 
     const t = await this.sequelize.transaction();
     let task: Task;
@@ -269,6 +300,38 @@ export class TasksService {
         };
         await this.taskMemberModel.destroy({
           where: whereTaskMember,
+          transaction: t,
+        });
+      }
+
+      // CREATE TASK SUBTASKS
+      if (taskSubtasksForCreate?.length) {
+        const taskSubtasks: CreateTaskSubtaskDto[] = [];
+        taskSubtasksForCreate.forEach((taskSubtask, index) => {
+          taskSubtasks[index] = {
+            taskId: id,
+            text: taskSubtask.text,
+          };
+        });
+
+        await this.taskSubtaskModel.bulkCreate(taskSubtasks, {
+          transaction: t,
+          ignoreDuplicates: true,
+        });
+      }
+
+      // UPDATE TASK SUBTASKS
+      if (taskSubtasksForUpdate?.length) {
+        for (let i = 0; i < taskSubtasksForUpdate.length; i++) {
+          const taskSubtask = taskSubtasksForUpdate[i];
+          await this.taskSubtasksService.updateTaskSubtask(taskSubtask, t);
+        }
+      }
+
+      // DELETE TASK SUBTASKS
+      if (taskSubtasksForDelete?.length) {
+        await this.taskSubtaskModel.destroy({
+          where: { id: taskSubtasksForDelete },
           transaction: t,
         });
       }

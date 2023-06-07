@@ -1,4 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { TaskSubtask } from 'src/task-subtasks/task-subtasks.model';
 
 export class CreateTaskDto {
   @ApiProperty({ example: 'Новая задача', description: 'Наименование задачи' })
@@ -28,4 +29,11 @@ export class CreateTaskDto {
     required: false,
   })
   readonly taskMembersForCreate: number[];
+
+  @ApiProperty({
+    example: 1,
+    description: 'Текст подзадач (text)',
+    required: false,
+  })
+  readonly taskSubtasksForCreate: TaskSubtask[];
 }
