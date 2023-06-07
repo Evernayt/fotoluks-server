@@ -3,7 +3,6 @@ import { Employee } from 'src/employees/employees.model';
 import { ApiProperty } from '@nestjs/swagger';
 import {
   BelongsTo,
-  BelongsToMany,
   Column,
   DataType,
   Model,

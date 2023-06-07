@@ -3,14 +3,12 @@ import { CreateTaskMessageDto } from './dto/create-task-message.dto';
 import { TaskMessage } from './task-messages.model';
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
-import { Sequelize } from 'sequelize-typescript';
 import { Employee } from 'src/employees/employees.model';
 
 @Injectable()
 export class TaskMessagesService {
   constructor(
     @InjectModel(TaskMessage) private taskMessageModel: typeof TaskMessage,
-    private sequelize: Sequelize,
   ) {}
 
   // DESKTOP
