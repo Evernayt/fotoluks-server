@@ -4,6 +4,7 @@ import { TaskMessage } from './task-messages.model';
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { Employee } from 'src/employees/employees.model';
+import { UpdateTaskMessageDto } from './dto/update-task-message.dto';
 
 @Injectable()
 export class TaskMessagesService {
@@ -42,5 +43,16 @@ export class TaskMessagesService {
       ],
     });
     return taskMessages;
+  }
+
+  // DESKTOP
+  async updateTaskMessage(updateTaskMessageDto: UpdateTaskMessageDto) {
+    const { id } = updateTaskMessageDto;
+    const taskMessage = await this.taskMessageModel.update(
+      { ...updateTaskMessageDto, edited: true },
+      { where: { id } },
+    );
+
+    return taskMessage;
   }
 }
