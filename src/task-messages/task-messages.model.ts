@@ -33,4 +33,8 @@ export class TaskMessage extends Model<TaskMessage, TaskMessageCreationAttrs> {
 
   @BelongsTo(() => Task, { foreignKey: 'taskId' })
   task: Task;
+
+  @ApiProperty({ example: 'false', description: 'Изменено или нет' })
+  @Column({ type: DataType.BOOLEAN, allowNull: false, defaultValue: false })
+  edited: boolean;
 }
