@@ -362,6 +362,14 @@ export class OrdersService {
             },
           ],
         },
+        {
+          model: OrderInfo,
+          include: [
+            {
+              model: Employee,
+            },
+          ],
+        },
       ],
     });
     return orders;
