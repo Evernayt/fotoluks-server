@@ -1,4 +1,4 @@
-import { NestFactory } from '@nestjs/core';
+import { NestFactory, Reflector } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import AuthAPI from './moysklad/api/AuthAPI/AuthAPI';
 import { ServerModule } from './server.module';
@@ -15,7 +15,8 @@ async function bootstrap() {
   const server = await NestFactory.create(ServerModule, { cors: true });
   server.use(bodyParser.json({ limit: '50mb' }));
   server.use(bodyParser.urlencoded({ extended: true, limit: '50mb' }));
-  server.useGlobalGuards(new CheckVersionGuard());
+  const reflector = server.get(Reflector);
+  server.useGlobalGuards(new CheckVersionGuard(reflector));
 
   initializeApp({
     credential: cert(serviceAccount),

@@ -12,6 +12,7 @@ import { FileUploadDto } from './dto/file-upload.dto';
 import { FilesService } from './files.service';
 import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
 import { JwtAuthGuard } from 'src/auth/guard/jwt-auth.guard';
+import { NotCheckVersionGuard } from 'src/checkVersion.guard';
 
 @ApiTags('Файлы')
 @Controller('files')
@@ -20,6 +21,7 @@ export class FilesController {
 
   @ApiOperation({ summary: 'Загрузка аватара' })
   @ApiResponse({ status: 200 })
+  @NotCheckVersionGuard()
   @UseGuards(JwtAuthGuard)
   @Post('avatar')
   @UseInterceptors(FileInterceptor('file'))
@@ -29,6 +31,7 @@ export class FilesController {
 
   @ApiOperation({ summary: 'Загрузка файла' })
   @ApiResponse({ status: 200 })
+  @NotCheckVersionGuard()
   @UseGuards(JwtAuthGuard)
   @Post('upload')
   @UseInterceptors(FileInterceptor('file'))
@@ -41,6 +44,7 @@ export class FilesController {
 
   @ApiOperation({ summary: 'Загрузка файлов' })
   @ApiResponse({ status: 200 })
+  @NotCheckVersionGuard()
   @UseGuards(JwtAuthGuard)
   @Post('uploads')
   @UseInterceptors(FilesInterceptor('files', 100))

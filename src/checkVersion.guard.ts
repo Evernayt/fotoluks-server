@@ -3,6 +3,7 @@ import {
   CanActivate,
   ExecutionContext,
   UnauthorizedException,
+  SetMetadata,
 } from '@nestjs/common';
 import { Observable } from 'rxjs';
 import {
@@ -10,12 +11,20 @@ import {
   REQUIRED_MOBILE_APP_VERSION,
 } from './common/constants/app';
 import getNumbersByString from './common/helpers/getNumbersByString';
+import { Reflector } from '@nestjs/core';
 
 @Injectable()
 export class CheckVersionGuard implements CanActivate {
+  constructor(private reflector: Reflector) {}
+
   canActivate(
     context: ExecutionContext,
   ): boolean | Promise<boolean> | Observable<boolean> {
+    const notCheck = this.reflector.getAllAndOverride<boolean>('notCheck', [
+      context.getHandler(),
+      context.getClass(),
+    ]);
+    if (notCheck) return true;
     try {
       const req = context.switchToHttp().getRequest();
       const header = req.headers.authorization;
@@ -55,3 +64,5 @@ export class CheckVersionGuard implements CanActivate {
     }
   }
 }
+
+export const NotCheckVersionGuard = () => SetMetadata('notCheck', true);
