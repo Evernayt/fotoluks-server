@@ -4,7 +4,8 @@ export interface IOrderBody {
   statusId: number;
   shopId: number;
   sum: number;
-  deadline: string;
-  comment: string;
   prepayment: number;
+  discount: number;
+  deadline: string | null;
+  comment: string;
 }

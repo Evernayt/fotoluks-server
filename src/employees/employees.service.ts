@@ -1,6 +1,6 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
-import { Op } from 'sequelize';
+import { Op, Sequelize, WhereOptions } from 'sequelize';
 import { App } from 'src/apps/apps.model';
 import { Department } from 'src/departments/departments.model';
 import { AddAppDto } from './dto/add-app.dto';
@@ -14,6 +14,8 @@ import * as bcrypt from 'bcryptjs';
 import { EmployeeApps } from 'src/apps/employee-apps.model';
 import { EmployeeDepartments } from 'src/departments/employee-departments.model';
 import { Role } from 'src/roles/roles.model';
+import { Literal } from 'sequelize/types/utils';
+import correctSearch from 'src/common/helpers/correctSearch';
 
 @Injectable()
 export class EmployeesService {
@@ -31,51 +33,40 @@ export class EmployeesService {
 
   // DESKTOP
   async getEmployees(getEmployeesDto: GetEmployeesDto) {
-    let { limit, page, archive, search, appId } = getEmployeesDto;
+    let { limit, page, archive, search, appId, roleIds } = getEmployeesDto;
     limit = Number(limit) || 1000;
     page = Number(page) || 1;
     const offset = page * limit - limit;
     archive = String(archive) === 'true';
+    search = correctSearch(search);
 
-    let whereEmployee: any = { archive };
-    let whereApp: any;
+    let where: WhereOptions<Employee> = { archive };
+    let whereApp: WhereOptions<App>;
+    let whereRole: WhereOptions<Role>;
+    let literalWhere: Literal;
 
     if (appId) {
       whereApp = { id: appId };
     }
 
-    if (search) {
-      const words = search.match(/[^ ]+/g);
-      if (words) {
-        const or = [];
-        words.forEach((word) => {
-          or.push({ [Op.like]: `%${word}%` });
-        });
-
-        whereEmployee = {
-          ...whereEmployee,
-          [Op.or]: [
-            {
-              name: {
-                [Op.or]: or,
-              },
-            },
-            {
-              login: {
-                [Op.or]: or,
-              },
-            },
-          ],
-        };
+    if (roleIds) {
+      roleIds = roleIds.map(Number);
+      if (!roleIds.includes(0)) {
+        whereRole = { id: roleIds };
       }
     }
 
+    if (search) {
+      literalWhere = Sequelize.literal(
+        `MATCH(employee.name, surname, login) AGAINST('*${search}*' IN BOOLEAN MODE)`,
+      );
+    }
+
     const employees = await this.employeeModel.findAndCountAll({
-      subQuery: search ? false : undefined,
-      limit: search ? undefined : limit,
-      offset: search ? undefined : offset,
-      where: whereEmployee,
+      limit,
+      offset,
       distinct: true,
+      where: [where, literalWhere],
       include: [
         {
           model: App,
@@ -86,6 +77,7 @@ export class EmployeesService {
         },
         {
           model: Role,
+          where: whereRole,
         },
       ],
     });
@@ -173,15 +165,13 @@ export class EmployeesService {
         );
       }
     }
-    const employee = await this.getEmployee(id);
+
     await this.employeeModel.update(updateEmployeeDto, {
       where: { id },
     });
 
-    const updatedEmployee: Partial<Employee> = {
-      ...employee.dataValues,
-      ...updateEmployeeDto,
-    };
+    const updatedEmployee = await this.getEmployee(id);
+
     return updatedEmployee;
   }
 

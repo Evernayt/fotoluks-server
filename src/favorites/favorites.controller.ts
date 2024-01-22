@@ -14,6 +14,7 @@ import { CreateFavoriteDto } from './dto/create-favorite.dto';
 import { GetFavoritesDto } from './dto/get-favorites.dto';
 import { Favorite } from './favorites.model';
 import { FavoritesService } from './favorites.service';
+import { DeleteFavoriteDto } from './dto/delete-favorite.dto';
 
 @ApiTags('Избранное')
 @Controller('favorites')
@@ -39,8 +40,8 @@ export class FavoritesController {
   @ApiOperation({ summary: 'Удаление избранного' })
   @ApiResponse({ status: 200 })
   @UseGuards(JwtAuthGuard)
-  @Delete(':id')
-  delete(@Param('id') id: number) {
-    return this.favoritesService.deleteFavorite(id);
+  @Delete()
+  delete(@Query() deleteFavoriteDto: DeleteFavoriteDto) {
+    return this.favoritesService.deleteFavorite(deleteFavoriteDto);
   }
 }

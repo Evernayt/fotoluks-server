@@ -28,6 +28,9 @@ import { GetSupplyPositionsDto } from './api/SupplyAPI/dto/get-supply-positions.
 import SupplyAPI from './api/SupplyAPI/SupplyAPI';
 import { UpdateVariantDto } from './api/VariantAPI/dto/update-variant.dto';
 import VariantAPI from './api/VariantAPI/VariantAPI';
+import CounterpartyAPI from './api/CounterpartyAPI/CounterpartyAPI';
+import { GetCounterpartyDto } from './api/CounterpartyAPI/dto/get-counterparty.dto';
+import { EditMoveDto } from './api/MoveAPI/dto/edit-move.dto';
 
 @Injectable()
 export class MoyskladService {
@@ -74,8 +77,18 @@ export class MoyskladService {
     return data;
   }
 
+  async editMove(editMoveDto: EditMoveDto) {
+    const data = MoveAPI.edit(editMoveDto);
+    return data;
+  }
+
   async getMoves(getMovesDto: GetMovesDto) {
     const data = MoveAPI.getAll(getMovesDto);
+    return data;
+  }
+
+  async getMove(moveId: string) {
+    const data = MoveAPI.getOne(moveId);
     return data;
   }
 
@@ -100,8 +113,8 @@ export class MoyskladService {
   }
 
   // Assortment
-  async getAssortments(getAssortmentsDto: GetAssortmentsDto) {
-    const data = AssortmentAPI.getAll(getAssortmentsDto);
+  async getAssortments(getAssortmentsDto?: GetAssortmentsDto) {
+    const data = AssortmentAPI.getAll(getAssortmentsDto || {});
     return data;
   }
 
@@ -157,6 +170,12 @@ export class MoyskladService {
 
   async editSupply(editSupplyDto: EditSupplyDto) {
     const data = SupplyAPI.edit(editSupplyDto);
+    return data;
+  }
+
+  // Counterparty
+  async getCounterparty(getCounterpartyDto?: GetCounterpartyDto) {
+    const data = CounterpartyAPI.getAll(getCounterpartyDto || {});
     return data;
   }
 }

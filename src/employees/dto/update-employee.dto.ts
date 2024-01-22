@@ -7,6 +7,9 @@ export class UpdateEmployeeDto {
   @ApiProperty({ example: 'Иван', description: 'Имя', required: false })
   readonly name: string;
 
+  @ApiProperty({ example: 'Иванов', description: 'Фамилия', required: false })
+  readonly surname: string;
+
   @ApiProperty({ example: 'ivan', description: 'Логин', required: false })
   readonly login: string;
 

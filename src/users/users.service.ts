@@ -1,16 +1,24 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
-import { Op } from 'sequelize';
+import { Op, Sequelize, WhereOptions } from 'sequelize';
 import { CreateUserDto } from './dto/create-user.dto';
 import { GetUsersDto } from './dto/get-users.dto';
 import { UpdateUserPasswordDto } from './dto/update-user-password.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './users.model';
 import * as bcrypt from 'bcryptjs';
+import { MoyskladService } from 'src/moysklad/moysklad.service';
+import { getAccumulationDiscount } from 'src/common/helpers/moysklad';
+import correctSearch from 'src/common/helpers/correctSearch';
+import { Literal } from 'sequelize/types/utils';
+import correctPhone from 'src/common/helpers/correctPhone';
 
 @Injectable()
 export class UsersService {
-  constructor(@InjectModel(User) private userModel: typeof User) {}
+  constructor(
+    @InjectModel(User) private userModel: typeof User,
+    private moyskladService: MoyskladService,
+  ) {}
 
   async createUser(createUserDto: CreateUserDto) {
     const user = await this.userModel.create(createUserDto);
@@ -24,56 +32,23 @@ export class UsersService {
     page = Number(page) || 1;
     const offset = page * limit - limit;
     archive = String(archive) === 'true';
+    search = correctPhone(correctSearch(search));
 
-    let where: any = { archive };
+    let where: WhereOptions<User> = { archive };
+    let literalWhere: Literal;
 
     if (search) {
-      const words = search.match(/[^ ]+/g);
-      if (words) {
-        const or = [];
-        words.forEach((word) => {
-          or.push({ [Op.like]: `%${word}%` });
-        });
-
-        where = {
-          ...where,
-          [Op.or]: [
-            {
-              name: {
-                [Op.or]: or,
-              },
-            },
-            {
-              phone: {
-                [Op.or]: or,
-              },
-            },
-            {
-              email: {
-                [Op.or]: or,
-              },
-            },
-            {
-              vk: {
-                [Op.or]: or,
-              },
-            },
-            {
-              telegram: {
-                [Op.or]: or,
-              },
-            },
-          ],
-        };
-      }
+      literalWhere = Sequelize.literal(
+        `MATCH(user.name, surname, patronymic, phone, email, vk, telegram) 
+        AGAINST('*${search}*' IN BOOLEAN MODE)`,
+      );
     }
 
     const users = await this.userModel.findAndCountAll({
       limit,
       offset,
-      where,
       distinct: true,
-      order: [['name', 'ASC']],
+      where: [where, literalWhere],
     });
     return users;
   }
@@ -109,12 +84,11 @@ export class UsersService {
       }
     }
 
-    const user = await this.getUser(id);
     await this.userModel.update(updateUserDto, {
       where: { id },
     });
-    const updatedUser: Partial<User> = { ...user.dataValues, ...updateUserDto };
-    return updatedUser;
+    const user = await this.getUser(id);
+    return user;
   }
 
   // MOBILE
@@ -134,6 +108,37 @@ export class UsersService {
     const hashPassword = await bcrypt.hash(newPassword, 5);
     await this.userModel.update({ password: hashPassword }, { where: { id } });
 
+    return user;
+  }
+
+  // DESKTOP
+  async syncOneFromMoysklad(moyskladId: string) {
+    let user = null;
+    try {
+      const counterpartyData = await this.moyskladService.getCounterparty({
+        id: moyskladId,
+      });
+      if (counterpartyData?.rows.length) {
+        const counterparty = counterpartyData.rows[0];
+        const updatedUser = {
+          discount: getAccumulationDiscount(counterparty.discounts),
+        };
+        await this.userModel.update(updatedUser, {
+          where: { moyskladId },
+        });
+        user = updatedUser;
+      } else {
+        throw new HttpException(
+          'Контрагент не найден в МойСклад',
+          HttpStatus.BAD_REQUEST,
+        );
+      }
+    } catch (error) {
+      throw new HttpException(
+        error || 'Не удалось синхронизировать',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
     return user;
   }
 }

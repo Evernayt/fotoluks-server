@@ -1,7 +1,6 @@
 import { AuthModule } from './../auth/auth.module';
 import { Module, forwardRef } from '@nestjs/common';
 import { SequelizeModule } from '@nestjs/sequelize';
-import { FavoriteParam } from 'src/favorite-params/favorite-params.model';
 import { FavoritesController } from './favorites.controller';
 import { Favorite } from './favorites.model';
 import { FavoritesService } from './favorites.service';
@@ -10,7 +9,7 @@ import { FavoritesService } from './favorites.service';
   controllers: [FavoritesController],
   providers: [FavoritesService],
   imports: [
-    SequelizeModule.forFeature([Favorite, FavoriteParam]),
+    SequelizeModule.forFeature([Favorite]),
     forwardRef(() => AuthModule),
   ],
 })

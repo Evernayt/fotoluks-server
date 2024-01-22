@@ -60,4 +60,14 @@ export class GetTasksDto {
     required: false,
   })
   readonly urgent: boolean;
+
+  @ApiProperty({
+    example: 'false',
+    description: 'Личное или нет',
+    required: false,
+  })
+  readonly personal: boolean;
+
+  @ApiProperty({ example: 1, description: 'ID создателя', required: false })
+  readonly personalEmployeeId: number;
 }

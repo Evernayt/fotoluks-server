@@ -6,6 +6,7 @@ import {
   BelongsToMany,
   Column,
   DataType,
+  ForeignKey,
   HasMany,
   Model,
   Table,
@@ -27,7 +28,10 @@ interface EmployeeCreationAttrs {
   password: string;
 }
 
-@Table({ tableName: 'employees' })
+@Table({
+  tableName: 'employees',
+  indexes: [{ type: 'FULLTEXT', fields: ['name', 'surname', 'login'] }],
+})
 export class Employee extends Model<Employee, EmployeeCreationAttrs> {
   @ApiProperty({ example: 1, description: 'ID сотрудника' })
   @Column({
@@ -38,8 +42,12 @@ export class Employee extends Model<Employee, EmployeeCreationAttrs> {
   id: number;
 
   @ApiProperty({ example: 'Иван', description: 'Имя' })
-  @Column({ type: DataType.STRING, unique: true, allowNull: false })
+  @Column({ type: DataType.STRING, allowNull: false })
   name: string;
+
+  @ApiProperty({ example: 'Иванов', description: 'Фамилия' })
+  @Column({ type: DataType.STRING, allowNull: false })
+  surname: string;
 
   @ApiProperty({ example: 'ivan', description: 'Логин' })
   @Column({ type: DataType.STRING, unique: true, allowNull: false })
@@ -50,12 +58,16 @@ export class Employee extends Model<Employee, EmployeeCreationAttrs> {
   password: string;
 
   @ApiProperty({ example: 'https://google.com', description: 'Аватар' })
-  @Column({ type: DataType.STRING })
+  @Column({ type: DataType.STRING, defaultValue: null })
   avatar: string;
 
   @ApiProperty({ example: 'false', description: 'В архиве или нет' })
   @Column({ type: DataType.BOOLEAN, allowNull: false, defaultValue: false })
   archive: boolean;
+
+  @ForeignKey(() => Role)
+  @Column({ type: DataType.INTEGER })
+  roleId: number;
 
   @BelongsToMany(() => App, () => EmployeeApps)
   apps: App[];

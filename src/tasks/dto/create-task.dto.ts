@@ -2,9 +2,6 @@ import { ApiProperty } from '@nestjs/swagger';
 import { TaskSubtask } from 'src/task-subtasks/task-subtasks.model';
 
 export class CreateTaskDto {
-  @ApiProperty({ example: 'Новая задача', description: 'Наименование задачи' })
-  readonly name: string;
-
   @ApiProperty({ example: 'Что не так', description: 'Заголовок задачи' })
   readonly title: string;
 
@@ -13,6 +10,9 @@ export class CreateTaskDto {
 
   @ApiProperty({ example: 'false', description: 'Срочно или нет' })
   readonly urgent: boolean;
+
+  @ApiProperty({ example: 'false', description: 'Личное или нет' })
+  readonly personal: boolean;
 
   @ApiProperty({ example: 1, description: 'ID филиала' })
   readonly shopId: number;

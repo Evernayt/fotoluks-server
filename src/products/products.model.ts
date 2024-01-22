@@ -1,25 +1,19 @@
 import { ApiProperty } from '@nestjs/swagger';
-import {
-  BelongsTo,
-  Column,
-  DataType,
-  HasMany,
-  Model,
-  Table,
-} from 'sequelize-typescript';
-import { Category } from 'src/categories/categories.model';
-import { FinishedProduct } from 'src/finished-products/finished-products.model';
-import { Type } from 'src/types/types.model';
+import { Column, DataType, HasMany, Model, Table } from 'sequelize-typescript';
+import { OrderProduct } from 'src/order-products/order-products.model';
 
 interface ProductCreationAttrs {
   name: string;
-  pluralName: string;
-  description: string;
+  moyskladId: string | null;
+  price: number;
+  discountProhibited: boolean;
   image: string;
-  caregoryId: number;
 }
 
-@Table({ tableName: 'products' })
+@Table({
+  tableName: 'products',
+  indexes: [{ type: 'FULLTEXT', fields: ['name'] }],
+})
 export class Product extends Model<Product, ProductCreationAttrs> {
   @ApiProperty({ example: 1, description: 'ID продукта' })
   @Column({
@@ -33,28 +27,36 @@ export class Product extends Model<Product, ProductCreationAttrs> {
   @Column({ type: DataType.STRING, unique: true, allowNull: false })
   name: string;
 
-  @ApiProperty({ example: 'Фотохолсты', description: 'Наименование во мн.ч.' })
-  @Column({ type: DataType.STRING, unique: true, allowNull: false })
-  pluralName: string;
+  @ApiProperty({
+    example: 'd56d6da8-dce3-11e7-7a31-d0fd00178cbd',
+    description: 'ID товара или услуги в МойСклад',
+  })
+  @Column({ type: DataType.STRING, unique: true, defaultValue: null })
+  moyskladId: string;
 
-  @ApiProperty({ example: 'На подрамнике', description: 'Описание' })
-  @Column({ type: DataType.STRING, allowNull: false })
-  description: string;
+  @ApiProperty({ example: 150, description: 'Цена' })
+  @Column({ type: DataType.DECIMAL(11, 1), allowNull: false, defaultValue: 0 })
+  price: number;
+
+  @ApiProperty({ example: 'false', description: 'Изображение' })
+  @Column({ type: DataType.BOOLEAN, allowNull: false, defaultValue: false })
+  discountProhibited: boolean;
+
+  @ApiProperty({
+    example: '2022-09-04 16:45:00',
+    description: 'Дата синхронизации с МойСклад',
+  })
+  @Column({ type: DataType.DATE })
+  moyskladSynchronizedAt: string;
 
   @ApiProperty({ example: 'https://google.com', description: 'Изображение' })
-  @Column({ type: DataType.STRING })
+  @Column({ type: DataType.STRING, defaultValue: null })
   image: string;
 
   @ApiProperty({ example: 'false', description: 'В архиве или нет' })
   @Column({ type: DataType.BOOLEAN, allowNull: false, defaultValue: false })
   archive: boolean;
 
-  @BelongsTo(() => Category, { foreignKey: 'categoryId' })
-  category: Category;
-
-  @HasMany(() => Type, { foreignKey: 'productId' })
-  types: Type[];
-
-  @HasMany(() => FinishedProduct, { foreignKey: 'productId' })
-  finishedProducts: FinishedProduct[];
+  @HasMany(() => OrderProduct, { foreignKey: 'productId' })
+  orderProducts: OrderProduct[];
 }

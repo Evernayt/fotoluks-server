@@ -10,7 +10,17 @@ interface ShopCreationAttrs {
   abbreviation: string;
 }
 
-@Table({ tableName: 'shops', createdAt: false, updatedAt: false })
+@Table({
+  tableName: 'shops',
+  createdAt: false,
+  updatedAt: false,
+  indexes: [
+    {
+      type: 'FULLTEXT',
+      fields: ['name', 'description', 'address', 'abbreviation'],
+    },
+  ],
+})
 export class Shop extends Model<Shop, ShopCreationAttrs> {
   @ApiProperty({ example: 1, description: 'ID филиала' })
   @Column({

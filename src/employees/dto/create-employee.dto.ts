@@ -4,6 +4,9 @@ export class CreateEmployeeDto {
   @ApiProperty({ example: 'Иван', description: 'Имя' })
   readonly name: string;
 
+  @ApiProperty({ example: 'Иванов', description: 'Фамилия' })
+  readonly surname: string;
+
   @ApiProperty({ example: 'ivan', description: 'Логин' })
   readonly login: string;
 

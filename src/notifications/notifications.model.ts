@@ -4,6 +4,7 @@ import {
   BelongsToMany,
   Column,
   DataType,
+  ForeignKey,
   Model,
   Table,
 } from 'sequelize-typescript';
@@ -42,6 +43,14 @@ export class Notification extends Model<
   })
   @Column({ type: DataType.TEXT, allowNull: false })
   text: string;
+
+  @ForeignKey(() => App)
+  @Column({ type: DataType.INTEGER })
+  appId: number;
+
+  @ForeignKey(() => NotificationCategory)
+  @Column({ type: DataType.INTEGER })
+  notificationCategoryId: number;
 
   @BelongsTo(() => App, { foreignKey: 'appId' })
   app: App;

@@ -12,7 +12,7 @@ import { User } from 'src/users/users.model';
 import { CreateEmployeeDto } from 'src/employees/dto/create-employee.dto';
 import { Employee } from 'src/employees/employees.model';
 import { EmployeesService } from 'src/employees/employees.service';
-import { LoginEmployeeDto } from 'src/employees/dto/login-employee.dto';
+import { LoginEmployeeDto } from './dto/login-employee.dto';
 
 @Injectable()
 export class AuthService {
@@ -82,9 +82,9 @@ export class AuthService {
   }
 
   private async validateEmployee(loginEmployeeDto: LoginEmployeeDto) {
-    const employee = await this.employeesService.getEmployeeByLogin(
-      loginEmployeeDto.login,
-    );
+    const { login, password } = loginEmployeeDto;
+
+    const employee = await this.employeesService.getEmployeeByLogin(login);
     if (employee && employee.archive) {
       throw new UnauthorizedException({
         message: 'Пользователь заблокирован',
@@ -95,10 +95,7 @@ export class AuthService {
         message: 'Некорректный логин или пароль',
       });
     }
-    const passwordEquals = await bcrypt.compare(
-      loginEmployeeDto.password,
-      employee.password,
-    );
+    const passwordEquals = await bcrypt.compare(password, employee.password);
     if (employee && passwordEquals) {
       return employee;
     }

@@ -7,13 +7,6 @@ export class UpdateTaskDto {
   readonly id: number;
 
   @ApiProperty({
-    example: 'Новая задача',
-    description: 'Наименование задачи',
-    required: false,
-  })
-  readonly name: string;
-
-  @ApiProperty({
     example: 'Что не так',
     description: 'Заголовок задачи',
     required: false,
@@ -33,6 +26,13 @@ export class UpdateTaskDto {
     required: false,
   })
   readonly urgent: boolean;
+
+  @ApiProperty({
+    example: 'false',
+    description: 'Личное или нет',
+    required: false,
+  })
+  readonly personal: boolean;
 
   @ApiProperty({
     example: 'false',

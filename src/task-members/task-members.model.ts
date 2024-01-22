@@ -4,6 +4,7 @@ import {
   BelongsTo,
   Column,
   DataType,
+  ForeignKey,
   Model,
   Table,
 } from 'sequelize-typescript';
@@ -23,6 +24,14 @@ export class TaskMember extends Model<TaskMember, TaskMemberCreationAttrs> {
     autoIncrement: true,
   })
   id: number;
+
+  @ForeignKey(() => Task)
+  @Column({ type: DataType.INTEGER })
+  taskId: number;
+
+  @ForeignKey(() => Employee)
+  @Column({ type: DataType.INTEGER })
+  employeeId: number;
 
   @BelongsTo(() => Task, { foreignKey: 'taskId' })
   task: Task;

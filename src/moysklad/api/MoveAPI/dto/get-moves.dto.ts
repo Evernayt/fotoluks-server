@@ -18,4 +18,11 @@ export class GetMovesDto {
     description: 'Комментарий',
   })
   readonly description: string;
+
+  @ApiProperty({
+    example: '01506',
+    description: 'Поиск',
+    required: false,
+  })
+  readonly search?: string;
 }

@@ -13,26 +13,20 @@ import { AppsModule } from './apps/apps.module';
 import * as path from 'path';
 import { MoyskladModule } from './moysklad/moysklad.module';
 import { DepartmentsModule } from './departments/departments.module';
-import { CategoriesModule } from './categories/categories.module';
-import { ProductsModule } from './products/products.module';
-import { TypesModule } from './types/types.module';
-import { FeaturesModule } from './features/features.module';
-import { ParamsModule } from './params/params.module';
 import { VerificationModule } from './verification/verification.module';
 import { OrdersModule } from './orders/orders.module';
 import { OrderInfosModule } from './order-infos/order-infos.module';
 import { StatusesModule } from './statuses/statuses.module';
-import { FinishedProductsModule } from './finished-products/finished-products.module';
-import { SelectedParamsModule } from './selected-params/selected-params.module';
 import { NotificationsModule } from './notifications/notifications.module';
 import { FavoritesModule } from './favorites/favorites.module';
 import { OrderMembersModule } from './order-members/order-members.module';
-import { FavoriteParamsModule } from './favorite-params/favorite-params.module';
-import { GatewayModule } from './gateway/gateway.module';
+import { GatewayModule } from './common/gateway/gateway.module';
 import { TasksModule } from './tasks/tasks.module';
 import { NotificationCategoriesModule } from './notification-categories/notification-categories.module';
 import { RolesModule } from './roles/roles.module';
 import { TaskSubtasksModule } from './task-subtasks/task-subtasks.module';
+import { ProductsModule } from './products/products.module';
+import { OrderProductsModule } from './order-products/order-products.module';
 
 @Module({
   imports: [
@@ -49,6 +43,7 @@ import { TaskSubtasksModule } from './task-subtasks/task-subtasks.module';
       database: process.env.DB_NAME,
       autoLoadModels: true,
       synchronize: true,
+      //sync: { force: true },
     }),
     UsersModule,
     EmployeesModule,
@@ -58,21 +53,13 @@ import { TaskSubtasksModule } from './task-subtasks/task-subtasks.module';
     AppsModule,
     MoyskladModule,
     DepartmentsModule,
-    CategoriesModule,
-    ProductsModule,
-    TypesModule,
-    FeaturesModule,
-    ParamsModule,
     VerificationModule,
     OrdersModule,
     OrderInfosModule,
     StatusesModule,
-    FinishedProductsModule,
-    SelectedParamsModule,
     NotificationsModule,
     FavoritesModule,
     OrderMembersModule,
-    FavoriteParamsModule,
     GatewayModule,
     TasksModule,
     TaskMessagesModule,
@@ -80,6 +67,8 @@ import { TaskSubtasksModule } from './task-subtasks/task-subtasks.module';
     NotificationCategoriesModule,
     RolesModule,
     TaskSubtasksModule,
+    ProductsModule,
+    OrderProductsModule,
   ],
 })
 export class ServerModule {}

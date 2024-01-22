@@ -3,17 +3,16 @@ import {
   BelongsTo,
   Column,
   DataType,
-  HasMany,
+  ForeignKey,
   Model,
   Table,
 } from 'sequelize-typescript';
 import { Employee } from 'src/employees/employees.model';
-import { FavoriteParam } from 'src/favorite-params/favorite-params.model';
-import { Type } from 'src/types/types.model';
+import { Product } from 'src/products/products.model';
 
 interface FavoriteCreationAttrs {
   employeeId: number;
-  typeId: number;
+  productId: number;
 }
 
 @Table({ tableName: 'favorites' })
@@ -26,12 +25,17 @@ export class Favorite extends Model<Favorite, FavoriteCreationAttrs> {
   })
   id: number;
 
-  @HasMany(() => FavoriteParam, { foreignKey: 'favoriteId' })
-  favoriteParams: FavoriteParam[];
+  @ForeignKey(() => Employee)
+  @Column({ type: DataType.INTEGER })
+  employeeId: number;
+
+  @ForeignKey(() => Product)
+  @Column({ type: DataType.INTEGER })
+  productId: number;
 
   @BelongsTo(() => Employee, { foreignKey: 'employeeId' })
   employee: Employee;
 
-  @BelongsTo(() => Type, { foreignKey: 'typeId' })
-  type: Type;
+  @BelongsTo(() => Product, { foreignKey: 'productId' })
+  product: Product;
 }

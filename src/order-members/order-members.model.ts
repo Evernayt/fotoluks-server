@@ -3,6 +3,7 @@ import {
   BelongsTo,
   Column,
   DataType,
+  ForeignKey,
   Model,
   Table,
 } from 'sequelize-typescript';
@@ -23,6 +24,14 @@ export class OrderMember extends Model<OrderMember, OrderMemberCreationAttrs> {
     autoIncrement: true,
   })
   id: number;
+
+  @ForeignKey(() => Order)
+  @Column({ type: DataType.INTEGER })
+  orderId: number;
+
+  @ForeignKey(() => Employee)
+  @Column({ type: DataType.INTEGER })
+  employeeId: number;
 
   @BelongsTo(() => Order, { foreignKey: 'orderId' })
   order: Order;

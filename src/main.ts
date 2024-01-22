@@ -4,6 +4,7 @@ import AuthAPI from './moysklad/api/AuthAPI/AuthAPI';
 import { ServerModule } from './server.module';
 import * as bodyParser from 'body-parser';
 import { initializeApp, cert } from 'firebase-admin/app';
+import { CheckVersionGuard } from './checkVersion.guard';
 const serviceAccount = require('../firebase-adminsdk.json');
 
 async function bootstrap() {
@@ -14,6 +15,7 @@ async function bootstrap() {
   const server = await NestFactory.create(ServerModule, { cors: true });
   server.use(bodyParser.json({ limit: '50mb' }));
   server.use(bodyParser.urlencoded({ extended: true, limit: '50mb' }));
+  server.useGlobalGuards(new CheckVersionGuard());
 
   initializeApp({
     credential: cert(serviceAccount),

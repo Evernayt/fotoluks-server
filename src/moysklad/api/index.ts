@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { MOYSKLAD_API_URL } from 'src/constants/api';
+import { MOYSKLAD_API_URL } from 'src/common/constants/api';
 import AuthAPI from './AuthAPI/AuthAPI';
 
 const $host = axios.create({

@@ -7,5 +7,6 @@ import { MoyskladService } from './moysklad.service';
   controllers: [MoyskladController],
   providers: [MoyskladService],
   imports: [forwardRef(() => AuthModule)],
+  exports: [MoyskladService],
 })
 export class MoyskladModule {}

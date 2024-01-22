@@ -8,6 +8,7 @@ import {
   BelongsTo,
   Column,
   DataType,
+  ForeignKey,
   HasMany,
   Model,
   Table,
@@ -22,7 +23,10 @@ interface TaskCreationAttrs {
   completedDate: null;
 }
 
-@Table({ tableName: 'tasks' })
+@Table({
+  tableName: 'tasks',
+  indexes: [{ type: 'FULLTEXT', fields: ['title', 'description'] }],
+})
 export class Task extends Model<Task, TaskCreationAttrs> {
   @ApiProperty({ example: 1, description: 'ID задачи' })
   @Column({
@@ -31,10 +35,6 @@ export class Task extends Model<Task, TaskCreationAttrs> {
     autoIncrement: true,
   })
   id: number;
-
-  @ApiProperty({ example: 'Новая задача', description: 'Наименование задачи' })
-  @Column({ type: DataType.TEXT, allowNull: false })
-  name: string;
 
   @ApiProperty({ example: 'Что не так', description: 'Заголовок задачи' })
   @Column({ type: DataType.TEXT, allowNull: false })
@@ -47,6 +47,10 @@ export class Task extends Model<Task, TaskCreationAttrs> {
   @ApiProperty({ example: 'false', description: 'Срочно или нет' })
   @Column({ type: DataType.BOOLEAN, allowNull: false, defaultValue: false })
   urgent: boolean;
+
+  @ApiProperty({ example: 'false', description: 'Личное или нет' })
+  @Column({ type: DataType.BOOLEAN, allowNull: false, defaultValue: false })
+  personal: boolean;
 
   @ApiProperty({ example: 'false', description: 'Завершено или нет' })
   @Column({ type: DataType.BOOLEAN, allowNull: false, defaultValue: false })
@@ -67,7 +71,23 @@ export class Task extends Model<Task, TaskCreationAttrs> {
   @Column({ type: DataType.BOOLEAN, allowNull: false, defaultValue: false })
   archive: boolean;
 
-  @BelongsTo(() => Shop, { foreignKey: 'shopId' })
+  @ForeignKey(() => Shop)
+  @Column({ type: DataType.INTEGER })
+  shopId: number;
+
+  @ForeignKey(() => Department)
+  @Column({ type: DataType.INTEGER })
+  departmentId: number;
+
+  @ForeignKey(() => Employee)
+  @Column({ type: DataType.INTEGER })
+  creatorId: number;
+
+  @ForeignKey(() => Employee)
+  @Column({ type: DataType.INTEGER })
+  executorId: number;
+
+  @BelongsTo(() => Shop)
   shop: Shop;
 
   @BelongsTo(() => Department, { foreignKey: 'departmentId' })

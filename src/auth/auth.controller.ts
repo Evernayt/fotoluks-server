@@ -1,10 +1,10 @@
 import { Body, Controller, Get, Param, Post, UseGuards } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { CreateEmployeeDto } from 'src/employees/dto/create-employee.dto';
-import { LoginEmployeeDto } from 'src/employees/dto/login-employee.dto';
 import { CreateUserDto } from 'src/users/dto/create-user.dto';
 import { AuthService } from './auth.service';
 import { JwtAuthGuard } from './guard/jwt-auth.guard';
+import { LoginEmployeeDto } from './dto/login-employee.dto';
 
 @ApiTags('Авторизация')
 @Controller('auth')

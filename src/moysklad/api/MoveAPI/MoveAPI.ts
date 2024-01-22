@@ -9,6 +9,7 @@ import { EditMovePositionDto } from './dto/edit-move-position.dto';
 import { GetMovePositionsDto } from './dto/get-move-positions.dto';
 import { GetMovesDto } from './dto/get-moves.dto';
 import OrganizationAPI from '../OrganizationAPI/OrganizationAPI';
+import { EditMoveDto } from './dto/edit-move.dto';
 
 export default class MoveAPI {
   static async create(createMoveDto: CreateMoveDto): Promise<IMove> {
@@ -22,14 +23,40 @@ export default class MoveAPI {
     return data;
   }
 
+  static async edit(editMoveDto: EditMoveDto): Promise<IMove> {
+    const organization = await OrganizationAPI.getAll();
+    if (!organization.rows.length) return;
+
+    let { id, sourceStore, targetStore, description } = editMoveDto;
+
+    const { data } = await $authHost.put(`entity/move/${id}`, {
+      sourceStore,
+      targetStore,
+      description,
+      organization: organization.rows[0],
+    });
+    return data;
+  }
+
   static async getAll(getMovesDto: GetMovesDto): Promise<IMoyskladData<IMove>> {
-    let { limit, offset, description } = getMovesDto;
+    let { limit, offset, description, search } = getMovesDto;
     limit = limit || 1000;
     offset = offset || 0;
 
-    const { data } = await $authHost.get(
-      `entity/move/?filter=description~${description}&limit=${limit}&offset=${offset}&order=created,desc`,
-    );
+    let url = `entity/move/?limit=${limit}&offset=${offset}&order=created,desc`;
+    if (description) {
+      url += `&filter=description=${description}`;
+    }
+    if (search) {
+      url += `&search=${search}`;
+    }
+
+    const { data } = await $authHost.get(url);
+    return data;
+  }
+
+  static async getOne(moveId: string): Promise<IMove> {
+    const { data } = await $authHost.get(`entity/move/${moveId}`);
     return data;
   }
 
@@ -61,10 +88,10 @@ export default class MoveAPI {
   static async editPosition(
     editMovePositionDto: EditMovePositionDto,
   ): Promise<IPosition> {
-    const { id, positionID, quantity } = editMovePositionDto;
+    const { id, positionId, quantity } = editMovePositionDto;
 
     const { data } = await $authHost.put(
-      `entity/move/${id}/positions/${positionID}/?expand=assortment`,
+      `entity/move/${id}/positions/${positionId}/?expand=assortment`,
       { quantity },
     );
     return data;
@@ -73,10 +100,10 @@ export default class MoveAPI {
   static async deletePosition(
     deleteMovePositionDto: DeleteMovePositionDto,
   ): Promise<string> {
-    const { id, positionID } = deleteMovePositionDto;
+    const { id, positionId } = deleteMovePositionDto;
 
     const { data } = await $authHost.delete(
-      `entity/move/${id}/positions/${positionID}`,
+      `entity/move/${id}/positions/${positionId}`,
     );
     return data;
   }

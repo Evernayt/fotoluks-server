@@ -56,10 +56,10 @@ export default class LossAPI {
   static async editPosition(
     editLossPositionDto: EditLossPositionDto,
   ): Promise<IPosition> {
-    const { id, positionID, quantity, price, reason } = editLossPositionDto;
+    const { id, positionId, quantity, price, reason } = editLossPositionDto;
 
     const { data } = await $authHost.put(
-      `entity/loss/${id}/positions/${positionID}/?expand=assortment`,
+      `entity/loss/${id}/positions/${positionId}/?expand=assortment`,
       { quantity, price, reason },
     );
     return data;
@@ -68,10 +68,10 @@ export default class LossAPI {
   static async deletePosition(
     deleteLossPositionDto: DeleteLossPositionDto,
   ): Promise<string> {
-    const { id, positionID } = deleteLossPositionDto;
+    const { id, positionId } = deleteLossPositionDto;
 
     const { data } = await $authHost.delete(
-      `entity/loss/${id}/positions/${positionID}`,
+      `entity/loss/${id}/positions/${positionId}`,
     );
     return data;
   }

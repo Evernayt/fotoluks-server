@@ -36,6 +36,8 @@ export class TaskMessagesService {
       limit,
       offset,
       where,
+      distinct: true,
+      order: [['id', 'DESC']],
       include: [
         {
           model: Employee,

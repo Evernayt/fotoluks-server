@@ -32,6 +32,8 @@ import { MoyskladService } from './moysklad.service';
 import { GetSuppliesDto } from './api/SupplyAPI/dto/get-supplies.dto';
 import { GetSupplyPositionsDto } from './api/SupplyAPI/dto/get-supply-positions.dto';
 import { EditSupplyDto } from './api/SupplyAPI/dto/edit-supply.dto';
+import { GetCounterpartyDto } from './api/CounterpartyAPI/dto/get-counterparty.dto';
+import { EditMoveDto } from './api/MoveAPI/dto/edit-move.dto';
 
 @ApiTags('МойСклад')
 @Controller('moysklad')
@@ -97,11 +99,25 @@ export class MoyskladController {
     return this.moyskladService.createMove(createMoveDto);
   }
 
+  @ApiOperation({ summary: 'Изменение перемещения' })
+  @UseGuards(JwtAuthGuard)
+  @Put('move')
+  editMove(@Body() editMoveDto: EditMoveDto) {
+    return this.moyskladService.editMove(editMoveDto);
+  }
+
   @ApiOperation({ summary: 'Получение перемещений' })
   @UseGuards(JwtAuthGuard)
   @Get('move')
   getMoves(@Query() getMovesDto: GetMovesDto) {
     return this.moyskladService.getMoves(getMovesDto);
+  }
+
+  @ApiOperation({ summary: 'Получить перемещение' })
+  @UseGuards(JwtAuthGuard)
+  @Get('move/one/:moveId')
+  getOne(@Param('moveId') moveId: string) {
+    return this.moyskladService.getMove(moveId);
   }
 
   @ApiOperation({ summary: 'Создание позиций перемещения' })
@@ -213,5 +229,13 @@ export class MoyskladController {
   @Put('supply')
   editSupply(@Body() editSupplyDto: EditSupplyDto) {
     return this.moyskladService.editSupply(editSupplyDto);
+  }
+
+  // Counterparty
+  @ApiOperation({ summary: 'Получение контрагенотов' })
+  @UseGuards(JwtAuthGuard)
+  @Get('counterparty')
+  getCounterparty(@Query() getCounterpartyDto: GetCounterpartyDto) {
+    return this.moyskladService.getCounterparty(getCounterpartyDto);
   }
 }

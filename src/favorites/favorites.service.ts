@@ -1,67 +1,43 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
-import { FavoriteParam } from 'src/favorite-params/favorite-params.model';
-import { Feature } from 'src/features/features.model';
-import { Param } from 'src/params/params.model';
-import { Product } from 'src/products/products.model';
-import { Type } from 'src/types/types.model';
 import { CreateFavoriteDto } from './dto/create-favorite.dto';
 import { GetFavoritesDto } from './dto/get-favorites.dto';
 import { Favorite } from './favorites.model';
+import { Product } from 'src/products/products.model';
+import { DeleteFavoriteDto } from './dto/delete-favorite.dto';
 
 @Injectable()
 export class FavoritesService {
-  constructor(
-    @InjectModel(Favorite) private favoriteModel: typeof Favorite,
-    @InjectModel(FavoriteParam)
-    private favoriteParamModel: typeof FavoriteParam,
-  ) {}
+  constructor(@InjectModel(Favorite) private favoriteModel: typeof Favorite) {}
 
   // DESKTOP
   async createFavorite(createFavoriteDto: CreateFavoriteDto) {
-    const { typeId, employeeId, selectedParams } = createFavoriteDto;
-
-    const favorite = await this.favoriteModel.create({ typeId, employeeId });
-
-    const favoriteParams = [];
-    selectedParams.forEach((selectedParam) => {
-      favoriteParams.push({
-        paramId: selectedParam.param.id,
-        favoriteId: favorite.id,
-      });
-    });
-    await this.favoriteParamModel.bulkCreate(favoriteParams, {
-      ignoreDuplicates: true,
-    });
-
-    const foundFavorite = await this.favoriteModel.findOne({
-      where: { id: favorite.id },
+    let favorite = await this.favoriteModel.findOne({
+      //@ts-ignore
+      where: { productId: createFavoriteDto.productId },
       include: [
         {
-          model: Type,
-          include: [
-            {
-              model: Product,
-            },
-          ],
-        },
-        {
-          model: FavoriteParam,
-          include: [
-            {
-              model: Param,
-              include: [
-                {
-                  model: Feature,
-                },
-              ],
-            },
-          ],
+          model: Product,
+          where: { archive: false },
         },
       ],
     });
-
-    return foundFavorite;
+    if (favorite) {
+      return favorite;
+    } else {
+      await this.favoriteModel.create(createFavoriteDto);
+      favorite = await this.favoriteModel.findOne({
+        //@ts-ignore
+        where: { productId: createFavoriteDto.productId },
+        include: [
+          {
+            model: Product,
+            where: { archive: false },
+          },
+        ],
+      });
+      return favorite;
+    }
   }
 
   // DESKTOP
@@ -83,27 +59,8 @@ export class FavoritesService {
       distinct: true,
       include: [
         {
-          model: Type,
+          model: Product,
           where: { archive: false },
-          include: [
-            {
-              model: Product,
-              where: { archive: false },
-            },
-          ],
-        },
-        {
-          model: FavoriteParam,
-          include: [
-            {
-              model: Param,
-              include: [
-                {
-                  model: Feature,
-                },
-              ],
-            },
-          ],
         },
       ],
     });
@@ -111,15 +68,20 @@ export class FavoritesService {
   }
 
   // DESKTOP
-  async deleteFavorite(id: number) {
-    const whereParam = { favoriteId: id };
-    await this.favoriteParamModel.destroy({
-      where: whereParam,
-    });
+  async deleteFavorite(deleteFavoriteDto: DeleteFavoriteDto) {
+    const { favoriteId, productId } = deleteFavoriteDto;
 
-    const favorite = await this.favoriteModel.destroy({
-      where: { id },
-    });
+    let favorite = null;
+    if (productId) {
+      favorite = await this.favoriteModel.destroy({
+        //@ts-ignore
+        where: { productId },
+      });
+    } else {
+      favorite = await this.favoriteModel.destroy({
+        where: { id: favoriteId },
+      });
+    }
 
     return favorite;
   }

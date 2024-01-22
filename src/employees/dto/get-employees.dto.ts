@@ -27,4 +27,11 @@ export class GetEmployeesDto {
     required: false,
   })
   readonly appId: number;
+
+  @ApiProperty({
+    example: 1,
+    description: 'ID ролей',
+    required: false,
+  })
+  readonly roleIds: number[];
 }

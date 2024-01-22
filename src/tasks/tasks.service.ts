@@ -10,11 +10,13 @@ import { Task } from 'src/tasks/tasks.model';
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { Sequelize } from 'sequelize-typescript';
-import { Transaction } from 'sequelize';
+import { Transaction, WhereOptions } from 'sequelize';
 import { Op } from 'sequelize';
 import { CreateTaskSubtaskDto } from 'src/task-subtasks/dto/create-task-subtask.dto';
 import { TaskSubtasksService } from 'src/task-subtasks/task-subtasks.service';
 import { TaskSubtask } from 'src/task-subtasks/task-subtasks.model';
+import correctSearch from 'src/common/helpers/correctSearch';
+import { Literal } from 'sequelize/types/utils';
 
 @Injectable()
 export class TasksService {
@@ -36,9 +38,7 @@ export class TasksService {
     try {
       task = await this.taskModel.create(
         { ...createTaskDto, completedDate: null },
-        {
-          transaction: t,
-        },
+        { transaction: t },
       );
 
       // CREATE TASK MEMBERS
@@ -95,15 +95,18 @@ export class TasksService {
       startDate,
       endDate,
       urgent,
+      personal,
+      personalEmployeeId,
     } = getTasksDto;
     limit = Number(limit) || 1000;
     page = Number(page) || 1;
     const offset = page * limit - limit;
     archive = String(archive) === 'true';
     urgent = String(urgent) === 'true';
+    personal = String(personal) === 'true';
 
-    let where: any = { archive };
-    let whereEmployee: any;
+    let where: WhereOptions<Task> = { archive };
+    let whereEmployee: WhereOptions<Employee>;
 
     if (creatorId) {
       where = { ...where, creatorId };
@@ -117,6 +120,9 @@ export class TasksService {
         case '2':
           where = { ...where, completed: true };
           break;
+        case '3':
+          where = { ...where, personal: true, creatorId: personalEmployeeId };
+          break;
         default:
           break;
       }
@@ -125,7 +131,7 @@ export class TasksService {
     if (shopIds) {
       shopIds = shopIds.map(Number);
       if (!shopIds.includes(0)) {
-        where = { ...where, shopId: shopIds };
+        where = { ...where, shopId: { [Op.or]: [shopIds, null] } };
       }
     }
 
@@ -146,14 +152,33 @@ export class TasksService {
       }
       where = {
         ...where,
-        createdAt: {
-          [Op.between]: [startDate, endDate],
-        },
+        createdAt: { [Op.between]: [startDate, endDate] },
       };
     }
 
     if (urgent) {
       where = { ...where, urgent };
+    }
+
+    if (personalEmployeeId && !personal) {
+      where = {
+        ...where,
+        [Op.or]: [
+          {
+            personal: { [Op.or]: [true, false] },
+            creatorId: personalEmployeeId,
+          },
+          { personal: false, creatorId: { [Op.ne]: personalEmployeeId } },
+        ],
+      };
+    }
+
+    if (personalEmployeeId && personal) {
+      where = {
+        ...where,
+        personal: true,
+        creatorId: personalEmployeeId,
+      };
     }
 
     if (search) {
@@ -167,19 +192,13 @@ export class TasksService {
         where = {
           [Op.or]: [
             {
-              id: {
-                [Op.or]: or,
-              },
+              id: { [Op.or]: or },
             },
             {
-              title: {
-                [Op.or]: or,
-              },
+              title: { [Op.or]: or },
             },
             {
-              description: {
-                [Op.or]: or,
-              },
+              description: { [Op.or]: or },
             },
           ],
         };

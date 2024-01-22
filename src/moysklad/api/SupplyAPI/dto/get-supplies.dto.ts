@@ -20,4 +20,11 @@ export class GetSuppliesDto {
     required: false,
   })
   readonly productHref: string;
+
+  @ApiProperty({
+    example: 'КЗРК0074098',
+    description: 'Поиск',
+    required: false,
+  })
+  readonly search?: string;
 }

@@ -18,14 +18,14 @@ export class GetOrdersDto {
     description: 'Дата начала',
     required: false,
   })
-  readonly startDate: string;
+  readonly startDate: string | null;
 
   @ApiProperty({
     example: '2022-09-04 16:45:00',
     description: 'Дата окончания',
     required: false,
   })
-  readonly endDate: string;
+  readonly endDate: string | null;
 
   @ApiProperty({ example: 1, description: 'ID сотрудника', required: false })
   readonly employeeId: number;

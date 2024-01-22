@@ -59,4 +59,11 @@ export class UsersController {
   updatePassword(@Body() updateUserPasswordDto: UpdateUserPasswordDto) {
     return this.usersService.updateUserPassword(updateUserPasswordDto);
   }
+
+  @ApiOperation({ summary: 'Синхронизировать с МойСклад' })
+  @UseGuards(JwtAuthGuard)
+  @Get('sync/:moyskladId')
+  syncOne(@Param('moyskladId') moyskladId: string) {
+    return this.usersService.syncOneFromMoysklad(moyskladId);
+  }
 }

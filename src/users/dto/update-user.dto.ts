@@ -7,12 +7,25 @@ export class UpdateUserDto {
   @ApiProperty({ example: 'Иван', description: 'Имя', required: false })
   readonly name: string;
 
+  @ApiProperty({ example: 'Иванов', description: 'Фамилия', required: false })
+  readonly surname: string;
+
+  @ApiProperty({
+    example: 'Иванович',
+    description: 'Отчество',
+    required: false,
+  })
+  readonly patronymic: string;
+
   @ApiProperty({
     example: '88005554545',
     description: 'Номер телефона',
     required: false,
   })
   readonly phone: string;
+
+  @ApiProperty({ example: 10, description: 'Процент скидки', required: false })
+  readonly discount: number;
 
   @ApiProperty({
     example: 'ivan@mail.ru',
@@ -33,6 +46,20 @@ export class UpdateUserDto {
     required: false,
   })
   readonly avatar: string;
+
+  @ApiProperty({
+    example: 'd56d6da8-dce3-11e7-7a31-d0fd00178cbd',
+    description: 'ID контрагента в МойСклад',
+    required: false,
+  })
+  readonly moyskladId: string | null;
+
+  @ApiProperty({
+    example: '2022-09-04 16:45:00',
+    description: 'Дата синхронизации с МойСклад',
+    required: false,
+  })
+  moyskladSynchronizedAt: string | null;
 
   @ApiProperty({
     example: 'false',

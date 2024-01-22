@@ -1,18 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
-import { Op, Transaction } from 'sequelize';
+import { Op, Transaction, WhereOptions } from 'sequelize';
 import { Sequelize } from 'sequelize-typescript';
 import { Employee } from 'src/employees/employees.model';
-import { Feature } from 'src/features/features.model';
-import { FinishedProduct } from 'src/finished-products/finished-products.model';
 import { OrderInfo } from 'src/order-infos/order-infos.model';
 import { OrderMember } from 'src/order-members/order-members.model';
-import { Param } from 'src/params/params.model';
-import { Product } from 'src/products/products.model';
-import { SelectedParam } from 'src/selected-params/selected-params.model';
 import { Shop } from 'src/shops/shops.model';
 import { Status } from 'src/statuses/statuses.model';
-import { Type } from 'src/types/types.model';
 import { User } from 'src/users/users.model';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { EditOrderShopDto } from './dto/edit-order-shop.dto';
@@ -20,16 +14,18 @@ import { EditOrderStatusDto } from './dto/edit-order-status.dto';
 import { GetOrdersForExportDto } from './dto/get-orders-for-export.dto';
 import { GetOrdersDto } from './dto/get-orders.dto';
 import { Order } from './orders.model';
+import { OrderProduct } from 'src/order-products/order-products.model';
+import { Product } from 'src/products/products.model';
+import correctSearch from 'src/common/helpers/correctSearch';
+import { Literal } from 'sequelize/types/utils';
 
 @Injectable()
 export class OrdersService {
   constructor(
     @InjectModel(Order) private orderModel: typeof Order,
     @InjectModel(OrderInfo) private orderInfoModel: typeof OrderInfo,
-    @InjectModel(FinishedProduct)
-    private finishedProductModel: typeof FinishedProduct,
-    @InjectModel(SelectedParam)
-    private selectedParamModel: typeof SelectedParam,
+    @InjectModel(OrderProduct)
+    private orderProductModel: typeof OrderProduct,
     @InjectModel(OrderMember) private orderMemberModel: typeof OrderMember,
     private sequelize: Sequelize,
   ) {}
@@ -39,16 +35,16 @@ export class OrdersService {
     const {
       orderBody,
       orderInfoBody,
-      finishedProductsForCreateBody,
-      finishedProductsForUpdateBody,
-      finishedProductsForDeleteBody,
+      orderProductsForCreateBody,
+      orderProductsForUpdateBody,
+      orderProductsForDeleteBody,
       orderMembersForCreateBody,
       orderMembersForDeleteBody,
     } = createOrderDto;
 
     const t = await this.sequelize.transaction();
     let order = null;
-    let finishedProducts = [];
+    let orderProducts = [];
     try {
       // CREATE ORDER AND ORDER INFO
       if (orderBody.id === 0) {
@@ -73,127 +69,48 @@ export class OrdersService {
 
       const orderId = orderBody.id === 0 ? order.id : orderBody.id;
 
-      // CREATE FINISHED PRODUCTS
-      if (finishedProductsForCreateBody.length > 0) {
-        for (let i = 0; i < finishedProductsForCreateBody.length; i++) {
-          const finishedProductBody = (finishedProductsForCreateBody[i] = {
-            ...finishedProductsForCreateBody[i],
+      // CREATE ORDER PRODUCTS
+      if (orderProductsForCreateBody.length > 0) {
+        for (let i = 0; i < orderProductsForCreateBody.length; i++) {
+          const orderProductBody = (orderProductsForCreateBody[i] = {
+            ...orderProductsForCreateBody[i],
             orderId,
           });
 
-          const createdFinishedProduct = await this.finishedProductModel.create(
-            finishedProductBody,
-            {
-              transaction: t,
-            },
-          );
-
-          // CREATE SELECTED PARAMS
-          const selectedParamsBody = [];
-          const selectedParams = finishedProductBody.selectedParams;
-
-          for (let j = 0; j < selectedParams.length; j++) {
-            selectedParamsBody[j] = {
-              paramId: selectedParams[j].param.id,
-              finishedProductId: createdFinishedProduct.id,
-            };
-          }
-
-          await this.selectedParamModel.bulkCreate(selectedParamsBody, {
+          await this.orderProductModel.create(orderProductBody, {
             transaction: t,
-            ignoreDuplicates: true,
           });
         }
 
-        const whereFinishedProduct: any = { orderId };
-        finishedProducts = await this.finishedProductModel.findAll({
-          where: whereFinishedProduct,
+        const whereOrderProduct: any = { orderId };
+        orderProducts = await this.orderProductModel.findAll({
+          where: whereOrderProduct,
           transaction: t,
           order: [['id', 'DESC']],
           include: [
             {
               model: Product,
             },
-            {
-              model: Type,
-              include: [
-                {
-                  model: Param,
-                  through: {
-                    attributes: [],
-                  },
-                  include: [
-                    {
-                      model: Feature,
-                    },
-                  ],
-                },
-              ],
-            },
-            {
-              model: SelectedParam,
-              include: [
-                {
-                  model: Param,
-                  include: [
-                    {
-                      model: Feature,
-                    },
-                  ],
-                },
-              ],
-            },
           ],
         });
       }
 
-      // UPDATE FINISHED PRODUCTS
-      if (finishedProductsForUpdateBody.length > 0) {
-        for (let i = 0; i < finishedProductsForUpdateBody.length; i++) {
-          const finishedProductBody = finishedProductsForUpdateBody[i];
+      // UPDATE ORDER PRODUCTS
+      if (orderProductsForUpdateBody.length > 0) {
+        for (let i = 0; i < orderProductsForUpdateBody.length; i++) {
+          const orderProductBody = orderProductsForUpdateBody[i];
 
-          await this.finishedProductModel.update(finishedProductBody, {
-            where: { id: finishedProductBody.id },
+          await this.orderProductModel.update(orderProductBody, {
+            where: { id: orderProductBody.id },
             transaction: t,
-          });
-
-          // CREATE, UPDATE OR DELETE SELECTED PARAMS
-          const whereSelectedParam: any = {
-            finishedProductId: finishedProductBody.id,
-          };
-          await this.selectedParamModel.destroy({
-            where: whereSelectedParam,
-            transaction: t,
-          });
-
-          const selectedParamsBody = [];
-          const selectedParams = finishedProductBody.selectedParams;
-          for (let j = 0; j < selectedParams.length; j++) {
-            selectedParamsBody[j] = {
-              paramId: selectedParams[j].param.id,
-              finishedProductId: finishedProductBody.id,
-            };
-          }
-
-          await this.selectedParamModel.bulkCreate(selectedParamsBody, {
-            transaction: t,
-            ignoreDuplicates: true,
           });
         }
       }
 
-      // DELETE FINISHED PRODUCTS
-      if (finishedProductsForDeleteBody.length > 0) {
-        const whereFinishedProduct: any = {
-          finishedProductId: finishedProductsForDeleteBody,
-        };
-        await this.selectedParamModel.destroy({
-          where: whereFinishedProduct,
-          transaction: t,
-        });
-
-        await this.finishedProductModel.destroy({
-          where: { id: finishedProductsForDeleteBody },
+      // DELETE ORDER PRODUCTS
+      if (orderProductsForDeleteBody.length > 0) {
+        await this.orderProductModel.destroy({
+          where: { id: orderProductsForDeleteBody },
           transaction: t,
         });
       }
@@ -232,7 +149,7 @@ export class OrdersService {
     } catch (error) {
       await t.rollback();
     }
-    return { order, finishedProducts };
+    return { order, orderProducts };
   }
 
   // DESKTOP
@@ -251,18 +168,22 @@ export class OrdersService {
     limit = Number(limit) || 1000;
     page = Number(page) || 1;
     const offset = page * limit - limit;
+    //search = correctSearch(search);
 
-    let whereOrder: any;
-    let whereEmployee: any;
+    let where: WhereOptions<Order> = {};
+    //let whereStatus: WhereOptions<Status>;
+    //let whereShop: WhereOptions<Shop>;
+    let whereEmployee: WhereOptions<Employee>;
+    //let literalWhere: Literal;
 
     if (statusId && Number(statusId) !== 0) {
-      whereOrder = { statusId };
+      where = { statusId };
     }
 
     if (shopIds) {
       shopIds = shopIds.map(Number);
       if (!shopIds.includes(0)) {
-        whereOrder = { ...whereOrder, shopId: shopIds };
+        where = { ...where, shopId: shopIds };
       }
     }
 
@@ -270,12 +191,7 @@ export class OrdersService {
       if (!endDate) {
         endDate = '9999-12-01T00:00';
       }
-      whereOrder = {
-        ...whereOrder,
-        createdAt: {
-          [Op.between]: [startDate, endDate],
-        },
-      };
+      where = { ...where, createdAt: { [Op.between]: [startDate, endDate] } };
     }
 
     if (employeeId) {
@@ -290,45 +206,53 @@ export class OrdersService {
           or.push({ [Op.like]: `%${word}%` });
         });
 
-        whereOrder = {
+        where = {
           [Op.or]: [
             {
-              id: {
-                [Op.or]: or,
-              },
+              id: { [Op.or]: or },
             },
             {
-              sum: {
-                [Op.or]: or,
-              },
+              sum: { [Op.or]: or },
             },
             {
-              '$finishedProducts.product.name$': {
-                [Op.or]: or,
-              },
+              comment: { [Op.or]: or },
             },
             {
-              '$finishedProducts.type.name$': {
-                [Op.or]: or,
-              },
+              '$orderProducts.product.name$': { [Op.or]: or },
             },
             {
-              '$user.name$': {
-                [Op.or]: or,
-              },
+              '$user.name$': { [Op.or]: or },
+            },
+            {
+              '$user.surname$': { [Op.or]: or },
+            },
+            {
+              '$user.patronymic$': { [Op.or]: or },
+            },
+            {
+              '$user.phone$': { [Op.or]: or },
             },
           ],
         };
       }
     }
 
+    // if (search) {
+    //   literalWhere = Sequelize.literal(
+    //     `MATCH(order.comment) AGAINST('*${search}*' IN BOOLEAN MODE) OR
+    //     MATCH(orderProducts.product.name) AGAINST('*${search}*' IN BOOLEAN MODE) OR
+    //     MATCH(user.name, user.surname, user.patronymic, user.phone, user.email, user.vk, user.telegram)
+    //     AGAINST('*${search}*' IN BOOLEAN MODE)`,
+    //   );
+    // }
+
     const orders = await this.orderModel.findAndCountAll({
       subQuery: search ? false : undefined,
       limit: search ? undefined : limit,
       offset: search ? undefined : offset,
-      where: whereOrder,
       distinct: true,
       order: [['id', 'DESC']],
+      where,
       include: [
         {
           model: User,
@@ -352,13 +276,10 @@ export class OrdersService {
           model: Shop,
         },
         {
-          model: FinishedProduct,
+          model: OrderProduct,
           include: [
             {
               model: Product,
-            },
-            {
-              model: Type,
             },
           ],
         },
@@ -381,7 +302,7 @@ export class OrdersService {
 
     const where: any = {
       createdAt: {
-        [Op.between]: [startDate, endDate],
+        [Op.between]: [startDate, endDate || '9999-12-01T00:00'],
       },
       shopId,
     };
@@ -402,13 +323,10 @@ export class OrdersService {
           ],
         },
         {
-          model: FinishedProduct,
+          model: OrderProduct,
           include: [
             {
               model: Product,
-            },
-            {
-              model: Type,
             },
           ],
         },
@@ -422,7 +340,7 @@ export class OrdersService {
     const order = await this.orderModel.findOne({
       where: { id: orderId },
       transaction,
-      order: [['finishedProducts', 'id', 'DESC']],
+      order: [['orderProducts', 'id', 'DESC']],
       include: [
         {
           model: User,
@@ -448,39 +366,10 @@ export class OrdersService {
           model: Shop,
         },
         {
-          model: FinishedProduct,
+          model: OrderProduct,
           include: [
             {
               model: Product,
-            },
-            {
-              model: Type,
-              include: [
-                {
-                  model: Param,
-                  through: {
-                    attributes: [],
-                  },
-                  include: [
-                    {
-                      model: Feature,
-                    },
-                  ],
-                },
-              ],
-            },
-            {
-              model: SelectedParam,
-              include: [
-                {
-                  model: Param,
-                  include: [
-                    {
-                      model: Feature,
-                    },
-                  ],
-                },
-              ],
             },
           ],
         },

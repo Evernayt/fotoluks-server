@@ -4,6 +4,7 @@ import {
   BelongsTo,
   Column,
   DataType,
+  ForeignKey,
   Model,
   Table,
 } from 'sequelize-typescript';
@@ -30,6 +31,10 @@ export class TaskSubtask extends Model<TaskSubtask, TaskSubtaskCreationAttrs> {
   @ApiProperty({ example: 'false', description: 'Завершено или нет' })
   @Column({ type: DataType.BOOLEAN, allowNull: false, defaultValue: false })
   completed: boolean;
+
+  @ForeignKey(() => Task)
+  @Column({ type: DataType.INTEGER })
+  taskId: number;
 
   @BelongsTo(() => Task, { foreignKey: 'taskId' })
   task: Task;

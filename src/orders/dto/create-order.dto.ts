@@ -1,28 +1,28 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { ICreatedFinishedProduct } from '../models/ICreatedFinishedProduct';
 import { ICreatedOrderMember } from '../models/ICreatedOrderMember';
 import { IOrderBody } from '../models/IOrderBody';
 import { IOrderInfoBody } from '../models/IOrderInfoBody';
+import { ICreatedOrderProduct } from '../models/ICreatedOrderProduct';
 
 export class CreateOrderDto {
   @ApiProperty({ description: 'Данные заказа' })
   readonly orderBody: IOrderBody;
 
-  @ApiProperty({ description: 'Данные информации заказа' })
+  @ApiProperty({ description: 'Информация заказа' })
   readonly orderInfoBody: IOrderInfoBody;
 
-  @ApiProperty({ description: 'Данные завершенных продуктов для создания' })
-  readonly finishedProductsForCreateBody: ICreatedFinishedProduct[];
+  @ApiProperty({ description: 'Продукты заказа для создания' })
+  readonly orderProductsForCreateBody: ICreatedOrderProduct[];
 
-  @ApiProperty({ description: 'Данные завершенных продуктов для обновления' })
-  readonly finishedProductsForUpdateBody: ICreatedFinishedProduct[];
+  @ApiProperty({ description: 'Продукты заказа для обновления' })
+  readonly orderProductsForUpdateBody: ICreatedOrderProduct[];
 
-  @ApiProperty({ description: 'Данные ID завершенных продуктов для удаления' })
-  readonly finishedProductsForDeleteBody: number[];
+  @ApiProperty({ description: 'ID продуктов заказа для удаления' })
+  readonly orderProductsForDeleteBody: number[];
 
-  @ApiProperty({ description: 'Данные участинков заказа для создания' })
+  @ApiProperty({ description: 'Участники заказа для создания' })
   readonly orderMembersForCreateBody: ICreatedOrderMember[];
 
-  @ApiProperty({ description: 'Данные ID участинков заказа для удаления' })
+  @ApiProperty({ description: 'ID участников заказа для удаления' })
   readonly orderMembersForDeleteBody: number[];
 }
