@@ -37,7 +37,7 @@ export class ShopsService {
 
     if (search) {
       literalWhere = Sequelize.literal(
-        `MATCH(shop.name, description, address, abbreviation) 
+        `MATCH(Shop.name, description, address, abbreviation) 
         AGAINST('*${search}*' IN BOOLEAN MODE)`,
       );
     }

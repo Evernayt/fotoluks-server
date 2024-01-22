@@ -58,7 +58,7 @@ export class EmployeesService {
 
     if (search) {
       literalWhere = Sequelize.literal(
-        `MATCH(employee.name, surname, login) AGAINST('*${search}*' IN BOOLEAN MODE)`,
+        `MATCH(Employee.name, surname, login) AGAINST('*${search}*' IN BOOLEAN MODE)`,
       );
     }
 

@@ -39,7 +39,7 @@ export class UsersService {
 
     if (search) {
       literalWhere = Sequelize.literal(
-        `MATCH(user.name, surname, patronymic, phone, email, vk, telegram) 
+        `MATCH(User.name, surname, patronymic, phone, email, vk, telegram) 
         AGAINST('*${search}*' IN BOOLEAN MODE)`,
       );
     }

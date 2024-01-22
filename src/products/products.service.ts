@@ -74,7 +74,7 @@ export class ProductsService {
 
     if (search) {
       literalWhere = Sequelize.literal(
-        `MATCH(product.name) AGAINST('*${search}*' IN BOOLEAN MODE)`,
+        `MATCH(Product.name) AGAINST('*${search}*' IN BOOLEAN MODE)`,
       );
     }
 
