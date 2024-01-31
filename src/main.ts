@@ -11,6 +11,7 @@ async function bootstrap() {
   const PORT = process.env.PORT || 5000;
   const MOYSKLAD_LOGIN = process.env.MOYSKLAD_LOGIN;
   const MOYSKLAD_PASSWORD = process.env.MOYSKLAD_PASSWORD;
+  const IS_DEV = process.env.IS_DEV === 'true';
 
   const server = await NestFactory.create(ServerModule, { cors: true });
   server.use(bodyParser.json({ limit: '50mb' }));
@@ -34,15 +35,17 @@ async function bootstrap() {
     console.log(`[SERVER] STARTED ON PORT ${PORT}`),
   );
 
-  await AuthAPI.getToken({
-    login: MOYSKLAD_LOGIN,
-    password: MOYSKLAD_PASSWORD,
-  })
-    .then(() => {
-      console.log('[SERVER] MOYSKLAD TOKEN RECEIVED');
+  if (!IS_DEV) {
+    await AuthAPI.getToken({
+      login: MOYSKLAD_LOGIN,
+      password: MOYSKLAD_PASSWORD,
     })
-    .catch(() => {
-      console.log('[SERVER] MOYSKLAD TOKEN NOT RECEIVED');
-    });
+      .then(() => {
+        console.log('[SERVER] MOYSKLAD TOKEN RECEIVED');
+      })
+      .catch(() => {
+        console.log('[SERVER] MOYSKLAD TOKEN NOT RECEIVED');
+      });
+  }
 }
 bootstrap();

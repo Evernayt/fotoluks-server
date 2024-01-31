@@ -3,7 +3,7 @@ import { InjectModel } from '@nestjs/sequelize';
 import { Department } from './departments.model';
 import { CreateDepartmentDto } from './dto/create-department.dto';
 import { GetDepartmentsDto } from './dto/get-departments.dto';
-import { Op } from 'sequelize';
+import { Op, WhereOptions } from 'sequelize';
 
 @Injectable()
 export class DepartmentsService {
@@ -24,7 +24,10 @@ export class DepartmentsService {
     archive = String(archive) === 'true';
     isIncludeGeneral = String(isIncludeGeneral) === 'true';
 
-    let where: any = { name: { [Op.ne]: 'Общий' }, archive };
+    let where: WhereOptions<Department> = {
+      name: { [Op.ne]: 'Общий' },
+      archive,
+    };
 
     if (isIncludeGeneral) {
       where = { archive };

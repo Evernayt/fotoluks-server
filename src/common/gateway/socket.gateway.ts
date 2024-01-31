@@ -6,15 +6,10 @@ import {
   WebSocketServer,
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
-import { IOnlineEmployee, IWatcher } from './socket.types';
+import { INotificationInfo, IEditor } from './socket.types';
 import { messaging } from 'firebase-admin';
 import { Message } from 'firebase-admin/lib/messaging/messaging-api';
-import { Notification } from 'src/notifications/notifications.model';
-
-interface INotificationInfo {
-  notification: Notification;
-  employeeIds: number[];
-}
+import SocketService from './socket.service';
 
 @WebSocketGateway({
   cors: {
@@ -25,29 +20,19 @@ export class SocketGateway {
   @WebSocketServer()
   server: Server;
 
-  employees: IOnlineEmployee[] = [];
-  watchers: IWatcher[] = [];
+  socketService = new SocketService();
 
-  addWatcher = (watcher: IWatcher, socketId: string) => {
-    !this.watchers.some((x) => x.employee.id === watcher.employee.id) &&
-      this.watchers.push({ ...watcher, socketId });
-  };
-
-  addEmployee = (employeeId: number, socketId: string) => {
-    this.employees.push({ employeeId, socketId: socketId });
-  };
-
-  removeWathcerByEmployeeId = (employeeId: number) => {
-    this.watchers = this.watchers.filter((x) => x.employee.id !== employeeId);
-  };
-
-  removeWathcer = (socketId: string) => {
-    this.watchers = this.watchers.filter((x) => x.socketId !== socketId);
-  };
-
-  removeEmployee = (socketId: string) => {
-    this.employees = this.employees.filter((x) => x.socketId !== socketId);
-  };
+  @SubscribeMessage('addOnlineEmployee')
+  handleAddOnlineEmployee(
+    @MessageBody() employeeId: number,
+    @ConnectedSocket() socket: Socket,
+  ) {
+    this.socketService.addOnlineEmployee(employeeId, socket.id);
+    this.server.emit(
+      'getOnlineEmployees',
+      this.socketService.getOnlineEmployees(),
+    );
+  }
 
   @SubscribeMessage('sendNotification')
   handleSendNotification(
@@ -74,46 +59,76 @@ export class SocketGateway {
     socket.broadcast.emit('getOrder', order);
   }
 
-  @SubscribeMessage('addWatcher')
-  handleAddWatcher(
-    @MessageBody() watcher: any,
+  @SubscribeMessage('addOrderEditor')
+  handleAddOrderEditor(
+    @MessageBody() orderEditor: IEditor,
     @ConnectedSocket() socket: Socket,
   ) {
-    this.addWatcher(watcher, socket.id);
-    this.server.emit('getWatchers', this.watchers);
+    this.socketService.addOrderEditor(orderEditor, socket.id);
+    this.server.emit('getOrderEditors', this.socketService.getOrderEditors());
   }
 
-  @SubscribeMessage('removeWatcher')
-  handleRemoveWatcher(
+  @SubscribeMessage('removeOrderEditor')
+  handleRemoveOrderEditor(
     @MessageBody() employeeId: number,
     @ConnectedSocket() socket: Socket,
   ) {
-    this.removeWathcerByEmployeeId(employeeId);
-    socket.broadcast.emit('getWatchers', this.watchers);
+    this.socketService.removeOrderEditorByEmployeeId(employeeId);
+    socket.broadcast.emit(
+      'getOrderEditors',
+      this.socketService.getOrderEditors(),
+    );
   }
 
-  @SubscribeMessage('addEmployee')
-  handleAddEmployee(
+  @SubscribeMessage('addMoveEditor')
+  handleAddMoveEditor(
+    @MessageBody() moveEditor: IEditor,
+    @ConnectedSocket() socket: Socket,
+  ) {
+    this.socketService.addMoveEditor(moveEditor, socket.id);
+    this.server.emit('getMoveEditors', this.socketService.getMoveEditors());
+  }
+
+  @SubscribeMessage('removeMoveEditor')
+  handleRemoveMoveEditor(
     @MessageBody() employeeId: number,
     @ConnectedSocket() socket: Socket,
   ) {
-    this.addEmployee(employeeId, socket.id);
-    console.log('conn', this.employees);
-    this.server.emit('getEmployees', this.employees);
+    this.socketService.removeMoveEditorByEmployeeId(employeeId);
+    socket.broadcast.emit(
+      'getMoveEditors',
+      this.socketService.getMoveEditors(),
+    );
   }
 
   handleDisconnect(@ConnectedSocket() socket: Socket) {
-    this.removeEmployee(socket.id);
-    console.log('disc', this.employees);
-    socket.broadcast.emit('getEmployees', this.employees);
+    this.socketService.removeOnlineEmployee(socket.id);
+    socket.broadcast.emit(
+      'getOnlineEmployees',
+      this.socketService.getOnlineEmployees(),
+    );
+
+    this.socketService.removeOrderEditor(socket.id);
+    socket.broadcast.emit(
+      'getOrderEditors',
+      this.socketService.getOrderEditors(),
+    );
+
+    this.socketService.removeMoveEditor(socket.id);
+    socket.broadcast.emit(
+      'getMoveEditors',
+      this.socketService.getMoveEditors(),
+    );
+
     console.log('====================================');
     console.log('SOCKET DISCONNECTED');
     console.log('====================================');
-    this.removeWathcer(socket.id);
-    socket.broadcast.emit('getWatchers', this.watchers);
   }
 
   handleConnection() {
+    this.server.emit('getOrderEditors', this.socketService.getOrderEditors());
+    this.server.emit('getMoveEditors', this.socketService.getMoveEditors());
+
     console.log('====================================');
     console.log('SOCKET CONNECTED');
     console.log('====================================');

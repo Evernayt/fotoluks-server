@@ -168,22 +168,26 @@ export class OrdersService {
     limit = Number(limit) || 1000;
     page = Number(page) || 1;
     const offset = page * limit - limit;
-    //search = correctSearch(search);
+    search = correctSearch(search);
 
     let where: WhereOptions<Order> = {};
-    //let whereStatus: WhereOptions<Status>;
-    //let whereShop: WhereOptions<Shop>;
-    let whereEmployee: WhereOptions<Employee>;
-    //let literalWhere: Literal;
+    let whereStatus: WhereOptions<Status>;
+    let whereShop: WhereOptions<Shop>;
+    let whereOrderMember: WhereOptions<OrderMember>;
+    let literalWhere: Literal;
 
     if (statusId && Number(statusId) !== 0) {
-      where = { statusId };
+      if (Number(statusId) === 6) {
+        whereStatus = { id: [1, 2, 3] };
+      } else {
+        whereStatus = { id: statusId };
+      }
     }
 
     if (shopIds) {
       shopIds = shopIds.map(Number);
       if (!shopIds.includes(0)) {
-        where = { ...where, shopId: shopIds };
+        whereShop = { id: shopIds };
       }
     }
 
@@ -195,74 +199,35 @@ export class OrdersService {
     }
 
     if (employeeId) {
-      whereEmployee = { id: employeeId };
+      whereOrderMember = { employeeId };
     }
 
     if (search) {
-      const words = search.match(/[^ ]+/g);
-      if (words) {
-        const or = [];
-        words.forEach((word) => {
-          or.push({ [Op.like]: `%${word}%` });
-        });
-
-        where = {
-          [Op.or]: [
-            {
-              id: { [Op.or]: or },
-            },
-            {
-              sum: { [Op.or]: or },
-            },
-            {
-              comment: { [Op.or]: or },
-            },
-            {
-              '$orderProducts.product.name$': { [Op.or]: or },
-            },
-            {
-              '$user.name$': { [Op.or]: or },
-            },
-            {
-              '$user.surname$': { [Op.or]: or },
-            },
-            {
-              '$user.patronymic$': { [Op.or]: or },
-            },
-            {
-              '$user.phone$': { [Op.or]: or },
-            },
-          ],
-        };
-      }
+      literalWhere = Sequelize.literal(
+        `MATCH(Order.comment) AGAINST('*${search}*' IN BOOLEAN MODE) OR
+        MATCH(\`OrderProducts->Product\`.name) AGAINST('*${search}*' IN BOOLEAN MODE) OR
+        MATCH(User.name, User.surname, User.patronymic, User.phone, User.email, User.vk, User.telegram)
+        AGAINST('*${search}*' IN BOOLEAN MODE)`,
+      );
     }
 
-    // if (search) {
-    //   literalWhere = Sequelize.literal(
-    //     `MATCH(order.comment) AGAINST('*${search}*' IN BOOLEAN MODE) OR
-    //     MATCH(orderProducts.product.name) AGAINST('*${search}*' IN BOOLEAN MODE) OR
-    //     MATCH(user.name, user.surname, user.patronymic, user.phone, user.email, user.vk, user.telegram)
-    //     AGAINST('*${search}*' IN BOOLEAN MODE)`,
-    //   );
-    // }
-
     const orders = await this.orderModel.findAndCountAll({
-      subQuery: search ? false : undefined,
-      limit: search ? undefined : limit,
-      offset: search ? undefined : offset,
+      subQuery: false,
+      limit,
+      offset,
       distinct: true,
       order: [['id', 'DESC']],
-      where,
+      where: [where, literalWhere],
       include: [
         {
           model: User,
         },
         {
           model: OrderMember,
+          where: whereOrderMember,
           include: [
             {
               model: Employee,
-              where: whereEmployee,
               attributes: {
                 exclude: ['password'],
               },
@@ -271,9 +236,11 @@ export class OrdersService {
         },
         {
           model: Status,
+          where: whereStatus,
         },
         {
           model: Shop,
+          where: whereShop,
         },
         {
           model: OrderProduct,
@@ -300,7 +267,7 @@ export class OrdersService {
   async getOrdersForExport(getOrdersForExportDto: GetOrdersForExportDto) {
     const { shopId, startDate, endDate } = getOrdersForExportDto;
 
-    const where: any = {
+    const where: WhereOptions<Order> = {
       createdAt: {
         [Op.between]: [startDate, endDate || '9999-12-01T00:00'],
       },

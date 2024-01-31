@@ -12,6 +12,7 @@ import { Order } from 'src/orders/orders.model';
 import { Status } from 'src/statuses/statuses.model';
 
 interface OrderInfoCreationAttrs {
+  description: string;
   employeeId: number;
   statusId: number;
   orderId: number;
@@ -26,6 +27,10 @@ export class OrderInfo extends Model<OrderInfo, OrderInfoCreationAttrs> {
     autoIncrement: true,
   })
   id: number;
+
+  @ApiProperty({ example: 'Закончилась фотобумага', description: 'Описание' })
+  @Column({ type: DataType.TEXT })
+  description: string;
 
   @ForeignKey(() => Employee)
   @Column({ type: DataType.INTEGER })

@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
-import { Op } from 'sequelize';
+import { Op, WhereOptions } from 'sequelize';
 import { Employee } from 'src/employees/employees.model';
 import { Status } from 'src/statuses/statuses.model';
 import { GetOrderInfosDto } from './dto/get-order-infos.dto';
@@ -20,7 +20,7 @@ export class OrderInfosService {
     page = Number(page) || 1;
     const offset = page * limit - limit;
 
-    let where: any;
+    let where: WhereOptions<OrderInfo>;
 
     if (orderId) {
       where = { orderId };
@@ -51,7 +51,7 @@ export class OrderInfosService {
   async getStatistics(getStatisticsDto: GetStatisticsDto) {
     const { employeeId, startDate, endDate } = getStatisticsDto;
 
-    const where: any = {
+    const where: WhereOptions<OrderInfo> = {
       createdAt: {
         [Op.between]: [startDate, endDate],
       },

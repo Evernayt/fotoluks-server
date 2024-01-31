@@ -27,6 +27,8 @@ import { RolesModule } from './roles/roles.module';
 import { TaskSubtasksModule } from './task-subtasks/task-subtasks.module';
 import { ProductsModule } from './products/products.module';
 import { OrderProductsModule } from './order-products/order-products.module';
+import { ReportsModule } from './reports/reports.module';
+import { ChangelogsModule } from './changelogs/changelogs.module';
 
 @Module({
   imports: [
@@ -69,6 +71,8 @@ import { OrderProductsModule } from './order-products/order-products.module';
     TaskSubtasksModule,
     ProductsModule,
     OrderProductsModule,
+    ReportsModule,
+    ChangelogsModule,
   ],
 })
 export class ServerModule {}

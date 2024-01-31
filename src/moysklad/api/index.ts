@@ -22,7 +22,8 @@ $authHost.interceptors.response.use(
     return response;
   },
   async (error) => {
-    if (error.response.status === 401) {
+    const IS_DEV = process.env.IS_DEV === 'true';
+    if (error.response.status === 401 && !IS_DEV) {
       await AuthAPI.getToken({
         login: process.env.MOYSKLAD_LOGIN,
         password: process.env.MOYSKLAD_PASSWORD,

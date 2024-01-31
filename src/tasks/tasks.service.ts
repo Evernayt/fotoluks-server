@@ -104,9 +104,11 @@ export class TasksService {
     archive = String(archive) === 'true';
     urgent = String(urgent) === 'true';
     personal = String(personal) === 'true';
+    search = correctSearch(search);
 
     let where: WhereOptions<Task> = { archive };
-    let whereEmployee: WhereOptions<Employee>;
+    let whereTaskMember: WhereOptions<TaskMember>;
+    let literalWhere: Literal;
 
     if (creatorId) {
       where = { ...where, creatorId };
@@ -121,7 +123,11 @@ export class TasksService {
           where = { ...where, completed: true };
           break;
         case '3':
-          where = { ...where, personal: true, creatorId: personalEmployeeId };
+          where = {
+            ...where,
+            creatorId: Number(personalEmployeeId),
+            personal: true,
+          };
           break;
         default:
           break;
@@ -138,22 +144,19 @@ export class TasksService {
     if (departmentIds) {
       departmentIds = departmentIds.map(Number);
       if (!departmentIds.includes(0)) {
-        where = { ...where, departmentId: departmentIds };
+        where = { ...where, departmentId: { [Op.or]: [departmentIds, null] } };
       }
     }
 
     if (employeeId) {
-      whereEmployee = { id: employeeId };
+      whereTaskMember = { employeeId };
     }
 
     if (startDate || endDate) {
       if (!endDate) {
         endDate = '9999-12-01T00:00';
       }
-      where = {
-        ...where,
-        createdAt: { [Op.between]: [startDate, endDate] },
-      };
+      where = { ...where, createdAt: { [Op.between]: [startDate, endDate] } };
     }
 
     if (urgent) {
@@ -174,35 +177,13 @@ export class TasksService {
     }
 
     if (personalEmployeeId && personal) {
-      where = {
-        ...where,
-        personal: true,
-        creatorId: personalEmployeeId,
-      };
+      where = { ...where, personal: true, creatorId: personalEmployeeId };
     }
 
     if (search) {
-      const words = search.match(/[^ ]+/g);
-      if (words) {
-        const or = [];
-        words.forEach((word) => {
-          or.push({ [Op.like]: `%${word}%` });
-        });
-
-        where = {
-          [Op.or]: [
-            {
-              id: { [Op.or]: or },
-            },
-            {
-              title: { [Op.or]: or },
-            },
-            {
-              description: { [Op.or]: or },
-            },
-          ],
-        };
-      }
+      literalWhere = Sequelize.literal(
+        `MATCH(Task.title, Task.description) AGAINST('*${search}*' IN BOOLEAN MODE)`,
+      );
     }
 
     const tasks = await this.taskModel.findAndCountAll({
@@ -210,7 +191,7 @@ export class TasksService {
       offset,
       distinct: true,
       order: [['id', 'DESC']],
-      where,
+      where: [where, literalWhere],
       include: [
         {
           model: Shop,
@@ -224,10 +205,10 @@ export class TasksService {
         },
         {
           model: TaskMember,
+          where: whereTaskMember,
           include: [
             {
               model: Employee,
-              where: whereEmployee,
               attributes: {
                 exclude: ['password'],
               },

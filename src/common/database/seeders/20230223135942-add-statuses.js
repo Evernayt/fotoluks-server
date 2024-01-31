@@ -8,31 +8,31 @@ module.exports = {
       [
         {
           name: 'Новый',
-          color: '#F7685B',
+          color: 'red',
           createdAt: new Date(),
           updatedAt: new Date(),
         },
         {
           name: 'В работе',
-          color: '#109CF1',
+          color: 'blue',
           createdAt: new Date(),
           updatedAt: new Date(),
         },
         {
           name: 'Готов',
-          color: '#9b58b5',
+          color: 'purple',
           createdAt: new Date(),
           updatedAt: new Date(),
         },
         {
           name: 'Отдан',
-          color: '#249641',
+          color: 'green',
           createdAt: new Date(),
           updatedAt: new Date(),
         },
         {
           name: 'Отменен',
-          color: '#929594',
+          color: 'gray',
           createdAt: new Date(),
           updatedAt: new Date(),
         },

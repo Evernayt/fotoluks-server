@@ -5,6 +5,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { Employee } from 'src/employees/employees.model';
 import { UpdateTaskMessageDto } from './dto/update-task-message.dto';
+import { WhereOptions } from 'sequelize';
 
 @Injectable()
 export class TaskMessagesService {
@@ -27,7 +28,7 @@ export class TaskMessagesService {
     page = Number(page) || 1;
     const offset = page * limit - limit;
 
-    let where: any;
+    let where: WhereOptions<TaskMessage>;
     if (taskId) {
       where = { taskId };
     }

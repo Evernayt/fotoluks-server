@@ -1,40 +1,39 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { CreateFavoriteDto } from './dto/create-favorite.dto';
 import { GetFavoritesDto } from './dto/get-favorites.dto';
 import { Favorite } from './favorites.model';
 import { Product } from 'src/products/products.model';
 import { DeleteFavoriteDto } from './dto/delete-favorite.dto';
+import { WhereOptions } from 'sequelize';
 
 @Injectable()
 export class FavoritesService {
-  constructor(@InjectModel(Favorite) private favoriteModel: typeof Favorite) {}
+  constructor(
+    @InjectModel(Favorite) private favoriteModel: typeof Favorite,
+    @InjectModel(Product) private productModel: typeof Product,
+  ) {}
 
   // DESKTOP
   async createFavorite(createFavoriteDto: CreateFavoriteDto) {
+    const { productId } = createFavoriteDto;
+
+    const product = await this.productModel.findByPk(productId);
+    if (product.dataValues.archive) {
+      throw new HttpException('Продукт в архиве', HttpStatus.BAD_REQUEST);
+    }
+
     let favorite = await this.favoriteModel.findOne({
-      //@ts-ignore
-      where: { productId: createFavoriteDto.productId },
-      include: [
-        {
-          model: Product,
-          where: { archive: false },
-        },
-      ],
+      where: { productId },
+      include: [{ model: Product }],
     });
     if (favorite) {
       return favorite;
     } else {
       await this.favoriteModel.create(createFavoriteDto);
       favorite = await this.favoriteModel.findOne({
-        //@ts-ignore
-        where: { productId: createFavoriteDto.productId },
-        include: [
-          {
-            model: Product,
-            where: { archive: false },
-          },
-        ],
+        where: { productId },
+        include: [{ model: Product, where: { archive: false } }],
       });
       return favorite;
     }
@@ -47,7 +46,7 @@ export class FavoritesService {
     page = Number(page) || 1;
     const offset = page * limit - limit;
 
-    let where: any;
+    let where: WhereOptions<Favorite>;
     if (employeeId) {
       where = { employeeId };
     }

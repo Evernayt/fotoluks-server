@@ -6,6 +6,11 @@ import { VerificationDto } from './dto/verification.dto';
 import { VerificationCode } from './verification-codes.model';
 import { VerificationTime } from './verification-times.model';
 import { VerifiedPhone } from './verified-phones.model';
+import {
+  ATTEMPT_COUNT,
+  ATTEMPT_INTERVAL_INCREMENT,
+  ATTEMPT_INTERVAL_START,
+} from 'src/common/constants/verification';
 
 function calcNextTryTime(date: Date) {
   const nextDate = new Date(date);
@@ -60,12 +65,6 @@ export class VerificationService {
     const { phone, ip } = createCodeDto;
 
     const code = getRandomInt(1000, 9999);
-
-    const ATTEMPT_INTERVAL_START = Number(process.env.ATTEMPT_INTERVAL_START);
-    const ATTEMPT_INTERVAL_INCREMENT = Number(
-      process.env.ATTEMPT_INTERVAL_INCREMENT,
-    );
-    const ATTEMPT_COUNT = Number(process.env.ATTEMPT_COUNT);
 
     let verificationTime = await this.verificationTimeModel.findOne({
       where: { ip },
