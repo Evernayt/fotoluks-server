@@ -205,8 +205,8 @@ export class OrdersService {
     if (search) {
       literalWhere = Sequelize.literal(
         `MATCH(Order.comment) AGAINST('*${search}*' IN BOOLEAN MODE) OR
-        MATCH(\`OrderProducts->Product\`.name) AGAINST('*${search}*' IN BOOLEAN MODE) OR
-        MATCH(User.name, User.surname, User.patronymic, User.phone, User.email, User.vk, User.telegram)
+        MATCH(\`orderProducts->product\`.name) AGAINST('*${search}*' IN BOOLEAN MODE) OR
+        MATCH(user.name, user.surname, user.patronymic, user.phone, user.email, user.vk, user.telegram)
         AGAINST('*${search}*' IN BOOLEAN MODE)`,
       );
     }
