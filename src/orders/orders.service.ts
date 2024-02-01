@@ -207,12 +207,12 @@ export class OrdersService {
         `MATCH(Order.comment) AGAINST('*${search}*' IN BOOLEAN MODE) OR
         MATCH(\`orderProducts->product\`.name) AGAINST('*${search}*' IN BOOLEAN MODE) OR
         MATCH(user.name, user.surname, user.patronymic, user.phone, user.email, user.vk, user.telegram)
-        AGAINST('*${search}*' IN BOOLEAN MODE)`,
+        AGAINST('*${search}*' IN BOOLEAN MODE) OR Order.id='${search}' OR Order.sum='${search}'`,
       );
     }
 
     const orders = await this.orderModel.findAndCountAll({
-      subQuery: false,
+      subQuery: search ? false : undefined,
       limit,
       offset,
       distinct: true,

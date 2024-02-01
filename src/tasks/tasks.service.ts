@@ -182,7 +182,8 @@ export class TasksService {
 
     if (search) {
       literalWhere = Sequelize.literal(
-        `MATCH(Task.title, Task.description) AGAINST('*${search}*' IN BOOLEAN MODE)`,
+        `MATCH(Task.title, Task.description) AGAINST('*${search}*' IN BOOLEAN MODE) OR
+         Task.id='${search}'`,
       );
     }
 
