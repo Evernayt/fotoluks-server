@@ -8,6 +8,7 @@ import {
   Model,
   Table,
 } from 'sequelize-typescript';
+import { OrderFile } from 'src/order-files/order-files.model';
 import { OrderInfo } from 'src/order-infos/order-infos.model';
 import { OrderMember } from 'src/order-members/order-members.model';
 import { OrderProduct } from 'src/order-products/order-products.model';
@@ -88,4 +89,7 @@ export class Order extends Model<Order, OrderCreationAttrs> {
 
   @HasMany(() => OrderMember, { foreignKey: 'orderId' })
   orderMembers: OrderMember[];
+
+  @HasMany(() => OrderFile, { foreignKey: 'orderId' })
+  orderFiles: OrderFile[];
 }

@@ -7,7 +7,9 @@ import {
   Post,
   Put,
   Query,
+  UploadedFiles,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { CreateOrderDto } from './dto/create-order.dto';
@@ -17,6 +19,9 @@ import { GetOrdersForExportDto } from './dto/get-orders-for-export.dto';
 import { GetOrdersDto } from './dto/get-orders.dto';
 import { Order } from './orders.model';
 import { OrdersService } from './orders.service';
+import { IFile } from 'src/files/models/IFile';
+import { FilesInterceptor } from '@nestjs/platform-express';
+import getBytesByMb from 'src/common/helpers/getBytesByMb';
 
 @ApiTags('Заказы')
 @Controller('orders')
@@ -27,8 +32,16 @@ export class OrdersController {
   @ApiResponse({ status: 200 })
   @UseGuards(JwtAuthGuard)
   @Post()
-  create(@Body() createOrderDto: CreateOrderDto) {
-    return this.ordersService.createOrder(createOrderDto);
+  @UseInterceptors(
+    FilesInterceptor('file', 100, {
+      limits: { fileSize: getBytesByMb(300) },
+    }),
+  )
+  create(
+    @Body() createOrderDto: CreateOrderDto | { createOrderDto: string },
+    @UploadedFiles() files: IFile[],
+  ) {
+    return this.ordersService.createOrder(createOrderDto, files);
   }
 
   @ApiOperation({ summary: 'Получить заказы' })

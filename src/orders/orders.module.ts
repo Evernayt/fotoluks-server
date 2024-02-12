@@ -7,12 +7,19 @@ import { OrdersController } from './orders.controller';
 import { Order } from './orders.model';
 import { OrdersService } from './orders.service';
 import { OrderProduct } from 'src/order-products/order-products.model';
+import { OrderFile } from 'src/order-files/order-files.model';
 
 @Module({
   providers: [OrdersService],
   controllers: [OrdersController],
   imports: [
-    SequelizeModule.forFeature([Order, OrderInfo, OrderProduct, OrderMember]),
+    SequelizeModule.forFeature([
+      Order,
+      OrderInfo,
+      OrderProduct,
+      OrderMember,
+      OrderFile,
+    ]),
     forwardRef(() => AuthModule),
   ],
 })

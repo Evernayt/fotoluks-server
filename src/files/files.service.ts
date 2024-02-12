@@ -1,50 +1,124 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import * as fs from 'fs';
+import { rm, readdir, rmdir } from 'fs/promises';
 import * as path from 'path';
 import { v4 as uuidv4 } from 'uuid';
 import { FileUploadDto } from './dto/file-upload.dto';
 import * as AdmZip from 'adm-zip';
 import * as sharp from 'sharp';
+import { IFile } from './models/IFile';
+import { InjectModel } from '@nestjs/sequelize';
+import { OrderFile } from 'src/order-files/order-files.model';
+import { Cron, CronExpression } from '@nestjs/schedule';
+import { Op, WhereOptions } from 'sequelize';
+import createDate from 'src/common/helpers/createDate';
+import { MAX_FILE_STORAGE_DAYS } from 'src/common/constants/app';
+
+const getDirectories = async (source: string) =>
+  (await readdir(source, { withFileTypes: true }))
+    .filter((dirent) => dirent.isDirectory())
+    .map((dirent) => dirent.name);
+
+const cleanEmptyFolders = async () => {
+  try {
+    const staticPath = path.join(__dirname, '../..', 'static');
+    const orderFolderPath = path.join(staticPath, 'orders');
+    const orderFolderNames = await getDirectories(orderFolderPath);
+    for (const orderFolderName of orderFolderNames) {
+      const folderPath = path.join(orderFolderPath, orderFolderName);
+      const files = await readdir(folderPath);
+      if (files.length <= 0) {
+        rmdir(folderPath);
+      }
+    }
+  } catch (error) {}
+};
 
 @Injectable()
 export class FilesService {
-  async avatar(file: any) {
-    try {
-      const fileName = uuidv4() + '.jpg';
-      const avatarPath = path.join(__dirname, '../..', 'static', 'avatar');
+  constructor(
+    @InjectModel(OrderFile) private orderFileModel: typeof OrderFile,
+  ) {}
 
-      if (!fs.existsSync(avatarPath)) {
-        fs.mkdirSync(avatarPath, { recursive: true });
+  @Cron(CronExpression.EVERY_DAY_AT_1AM)
+  async handleCron() {
+    const orderFiles = await this.orderFileModel.findAll({
+      where: {
+        createdAt: {
+          [Op.lte]: createDate(-MAX_FILE_STORAGE_DAYS).toISOString(),
+        },
+      },
+    });
+    const orderFilesForDelete = orderFiles.map((orderFile) => orderFile.id);
+    if (orderFilesForDelete.length > 0) {
+      const DOMAIN_LINK = `http://${process.env.HOST}:${process.env.PORT}`;
+      const staticPath = path.join(__dirname, '../..', 'static');
+      for (const orderFile of orderFiles) {
+        const filePath = orderFile.link.replace(DOMAIN_LINK, '');
+        const fullFilePath = path.join(staticPath, filePath);
+        rm(fullFilePath, { force: true });
       }
+
+      const whereOrderFile: WhereOptions<OrderFile> = {
+        id: orderFilesForDelete,
+      };
+      this.orderFileModel.destroy({ where: whereOrderFile });
+
+      cleanEmptyFolders();
+    }
+  }
+
+  async uploadAvatar(file: IFile) {
+    try {
+      const fileName = `${uuidv4()}.jpg`;
+      const avatarsPath = path.join(__dirname, '../..', 'static', 'avatar');
 
       await sharp(file.buffer)
         .resize(200)
         .jpeg({ quality: 80 })
         .flatten({ background: '#FFF' })
-        .toFile(path.join(avatarPath, fileName));
+        .toFile(path.join(avatarsPath, fileName));
 
-      const link = `http://${process.env.HOST}:${process.env.PORT}/avatar/${fileName}`;
+      const DOMAIN_LINK = `http://${process.env.HOST}:${process.env.PORT}`;
+      const link = `${DOMAIN_LINK}/avatar/${fileName}`;
       return { link };
     } catch (e) {
       throw new HttpException(e.message, HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 
-  async upload(fileUploadDto: FileUploadDto, file: any) {
+  async uploadManagerFile(file: IFile) {
     try {
-      let { userId, shopId, isManagerFile } = fileUploadDto;
-      isManagerFile = String(isManagerFile) === 'true';
+      const fileExtension = file.originalname.split('.').pop();
+      const fileName = `${uuidv4()}.${fileExtension}`;
+      const managerFilesPath = path.join(
+        __dirname,
+        '../..',
+        'static',
+        'manager',
+      );
+
+      await sharp(file.buffer)
+        .resize(200)
+        .jpeg({ quality: 80 })
+        .flatten({ background: '#FFF' })
+        .toFile(path.join(managerFilesPath, fileName));
+
+      const DOMAIN_LINK = `http://${process.env.HOST}:${process.env.PORT}`;
+      const link = `${DOMAIN_LINK}/manager/${fileName}`;
+      return { link };
+    } catch (e) {
+      throw new HttpException(e.message, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
+
+  async upload(fileUploadDto: FileUploadDto, file: IFile) {
+    try {
+      let { userId, shopId } = fileUploadDto;
 
       const fileExtension = file.originalname.split('.').pop();
       const fileName = uuidv4() + '.' + fileExtension;
-      const managerFolder = 'manager';
-      const uploadFolder = 'upload';
-
-      let folder = uploadFolder;
-      if (isManagerFile) {
-        folder = managerFolder;
-      }
-      const filePath = path.join(__dirname, '../..', 'static', folder);
+      const filePath = path.join(__dirname, '../..', 'static', 'upload');
 
       if (!fs.existsSync(filePath)) {
         fs.mkdirSync(filePath, { recursive: true });
@@ -52,14 +126,15 @@ export class FilesService {
 
       fs.writeFileSync(path.join(filePath, fileName), file.buffer);
 
-      const link = `http://${process.env.HOST}:${process.env.PORT}/${folder}/${fileName}`;
+      const DOMAIN_LINK = `http://${process.env.HOST}:${process.env.PORT}`;
+      const link = `${DOMAIN_LINK}/upload/${fileName}`;
       return { link };
     } catch (e) {
       throw new HttpException(e.message, HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 
-  async uploads(fileUploadDto: FileUploadDto, files: any[]) {
+  async uploads(fileUploadDto: FileUploadDto, files: IFile[]) {
     try {
       const { userId, shopId } = fileUploadDto;
 
@@ -78,7 +153,8 @@ export class FilesService {
       });
       zip.writeZip(path.join(uploadsPath, zipFileName));
 
-      const link = `http://${process.env.HOST}:${process.env.PORT}/uploads/${zipFileName}`;
+      const DOMAIN_LINK = `http://${process.env.HOST}:${process.env.PORT}`;
+      const link = `${DOMAIN_LINK}/uploads/${zipFileName}`;
       return { link };
     } catch (e) {
       throw new HttpException(e.message, HttpStatus.INTERNAL_SERVER_ERROR);

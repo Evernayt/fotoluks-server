@@ -29,6 +29,8 @@ import { ProductsModule } from './products/products.module';
 import { OrderProductsModule } from './order-products/order-products.module';
 import { ReportsModule } from './reports/reports.module';
 import { ChangelogsModule } from './changelogs/changelogs.module';
+import { OrderFilesModule } from './order-files/order-files.module';
+import { ScheduleModule } from '@nestjs/schedule';
 
 @Module({
   imports: [
@@ -47,6 +49,7 @@ import { ChangelogsModule } from './changelogs/changelogs.module';
       synchronize: true,
       //sync: { force: true },
     }),
+    ScheduleModule.forRoot(),
     UsersModule,
     EmployeesModule,
     AuthModule,
@@ -73,6 +76,7 @@ import { ChangelogsModule } from './changelogs/changelogs.module';
     OrderProductsModule,
     ReportsModule,
     ChangelogsModule,
+    OrderFilesModule,
   ],
 })
 export class ServerModule {}

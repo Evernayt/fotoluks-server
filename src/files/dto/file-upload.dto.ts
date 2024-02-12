@@ -6,11 +6,4 @@ export class FileUploadDto {
 
   @ApiProperty({ example: 1, description: 'ID филиала', required: false })
   readonly shopId: number;
-
-  @ApiProperty({
-    example: 'false',
-    description: 'Это файл для Fotoluks Manager или нет',
-    required: false,
-  })
-  readonly isManagerFile: boolean;
 }

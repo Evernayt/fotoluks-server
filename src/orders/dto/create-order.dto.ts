@@ -25,4 +25,7 @@ export class CreateOrderDto {
 
   @ApiProperty({ description: 'ID участников заказа для удаления' })
   readonly orderMembersForDeleteBody: number[];
+
+  @ApiProperty({ description: 'ID файлов заказа для удаления' })
+  readonly orderFilesForDeleteBody: number[];
 }

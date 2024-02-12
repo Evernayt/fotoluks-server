@@ -18,6 +18,15 @@ import { OrderProduct } from 'src/order-products/order-products.model';
 import { Product } from 'src/products/products.model';
 import correctSearch from 'src/common/helpers/correctSearch';
 import { Literal } from 'sequelize/types/utils';
+import { ICreatedOrderProductId } from './models/ICreatedOrderProductId';
+import { OrderFile } from 'src/order-files/order-files.model';
+import { IFile } from 'src/files/models/IFile';
+import { v4 as uuidv4 } from 'uuid';
+import { writeFile, rm } from 'fs/promises';
+import * as path from 'path';
+import * as fs from 'fs';
+import { CreateOrderFileDto } from 'src/order-files/dto/create-order-file.dto';
+import fileNameToUTF8 from 'src/common/helpers/fileNameToUTF8';
 
 @Injectable()
 export class OrdersService {
@@ -27,11 +36,21 @@ export class OrdersService {
     @InjectModel(OrderProduct)
     private orderProductModel: typeof OrderProduct,
     @InjectModel(OrderMember) private orderMemberModel: typeof OrderMember,
+    @InjectModel(OrderFile) private orderFileModel: typeof OrderFile,
     private sequelize: Sequelize,
   ) {}
 
   // DESKTOP
-  async createOrder(createOrderDto: CreateOrderDto) {
+  async createOrder(
+    createOrderDto: CreateOrderDto | { createOrderDto: string },
+    files: IFile[],
+  ) {
+    let data: CreateOrderDto;
+    if ('createOrderDto' in createOrderDto) {
+      data = JSON.parse(createOrderDto.createOrderDto);
+    } else {
+      data = createOrderDto;
+    }
     const {
       orderBody,
       orderInfoBody,
@@ -40,11 +59,13 @@ export class OrdersService {
       orderProductsForDeleteBody,
       orderMembersForCreateBody,
       orderMembersForDeleteBody,
-    } = createOrderDto;
+      orderFilesForDeleteBody,
+    } = data;
 
+    const DOMAIN_LINK = `http://${process.env.HOST}:${process.env.PORT}`;
     const t = await this.sequelize.transaction();
     let order = null;
-    let orderProducts = [];
+    const createdOrderProductIds: ICreatedOrderProductId[] = [];
     try {
       // CREATE ORDER AND ORDER INFO
       if (orderBody.id === 0) {
@@ -69,36 +90,57 @@ export class OrdersService {
 
       const orderId = orderBody.id === 0 ? order.id : orderBody.id;
 
-      // CREATE ORDER PRODUCTS
-      if (orderProductsForCreateBody.length > 0) {
-        for (let i = 0; i < orderProductsForCreateBody.length; i++) {
-          const orderProductBody = (orderProductsForCreateBody[i] = {
-            ...orderProductsForCreateBody[i],
-            orderId,
-          });
+      // DELETE ORDER FILES
+      if (orderFilesForDeleteBody?.length > 0) {
+        const whereOrderFile: WhereOptions<OrderFile> = {
+          id: orderFilesForDeleteBody,
+        };
 
-          await this.orderProductModel.create(orderProductBody, {
-            transaction: t,
-          });
+        const orderFiles = await this.orderFileModel.findAll({
+          where: whereOrderFile,
+          transaction: t,
+        });
+        const staticPath = path.join(__dirname, '../..', 'static');
+        for (const orderFile of orderFiles) {
+          const filePath = orderFile.link.replace(DOMAIN_LINK, '');
+          const fullFilePath = path.join(staticPath, filePath);
+          await rm(fullFilePath, { force: true });
         }
 
-        const whereOrderProduct: any = { orderId };
-        orderProducts = await this.orderProductModel.findAll({
-          where: whereOrderProduct,
+        await this.orderFileModel.destroy({
+          where: whereOrderFile,
           transaction: t,
-          order: [['id', 'DESC']],
-          include: [
-            {
-              model: Product,
-            },
-          ],
         });
       }
 
+      // CREATE ORDER PRODUCTS
+      if (orderProductsForCreateBody?.length > 0) {
+        for (const orderProductForCreateBody of orderProductsForCreateBody) {
+          const orderProductBody = {
+            ...orderProductForCreateBody,
+            id: null,
+            orderId,
+          };
+
+          const orderProduct = await this.orderProductModel.create(
+            orderProductBody,
+            { transaction: t },
+          );
+
+          createdOrderProductIds.push({
+            old: orderProductForCreateBody.id,
+            new: orderProduct.id,
+          });
+        }
+      }
+
       // UPDATE ORDER PRODUCTS
-      if (orderProductsForUpdateBody.length > 0) {
+      if (orderProductsForUpdateBody?.length > 0) {
         for (let i = 0; i < orderProductsForUpdateBody.length; i++) {
-          const orderProductBody = orderProductsForUpdateBody[i];
+          const orderProductBody = {
+            ...orderProductsForUpdateBody[i],
+            id: orderProductsForUpdateBody[i].id as number,
+          };
 
           await this.orderProductModel.update(orderProductBody, {
             where: { id: orderProductBody.id },
@@ -108,7 +150,7 @@ export class OrdersService {
       }
 
       // DELETE ORDER PRODUCTS
-      if (orderProductsForDeleteBody.length > 0) {
+      if (orderProductsForDeleteBody?.length > 0) {
         await this.orderProductModel.destroy({
           where: { id: orderProductsForDeleteBody },
           transaction: t,
@@ -116,7 +158,7 @@ export class OrdersService {
       }
 
       // CREATE ORDER MEMBERS
-      if (orderMembersForCreateBody.length > 0) {
+      if (orderMembersForCreateBody?.length > 0) {
         const orderMembersBody = [];
         for (let i = 0; i < orderMembersForCreateBody.length; i++) {
           orderMembersBody[i] = {
@@ -132,8 +174,8 @@ export class OrdersService {
       }
 
       // DELETE ORDER MEMBERS
-      if (orderMembersForDeleteBody.length > 0) {
-        const whereOrderMember: any = {
+      if (orderMembersForDeleteBody?.length > 0) {
+        const whereOrderMember: WhereOptions<OrderMember> = {
           employeeId: orderMembersForDeleteBody,
           orderId,
         };
@@ -143,13 +185,58 @@ export class OrdersService {
         });
       }
 
+      // CREATE ORDER FILES
+      if (files?.length > 0) {
+        const orderPath = path.join(
+          __dirname,
+          '../..',
+          'static/orders',
+          `${orderId}`,
+        );
+        if (!fs.existsSync(orderPath)) {
+          fs.mkdirSync(orderPath, { recursive: true });
+        }
+
+        const orderFiles: CreateOrderFileDto[] = [];
+        for (const file of files) {
+          file.originalname = fileNameToUTF8(file.originalname);
+          const shortUUID = uuidv4().split('-')[0];
+          const originalname = file.originalname.split(':')[0];
+          const oldOrderProductId = file.originalname.split(':')[1];
+          const orderProductId =
+            createdOrderProductIds.find((x) => x.old == oldOrderProductId)
+              ?.new || Number(oldOrderProductId);
+
+          const fileName = path.parse(originalname).name;
+          const fileExtension = path.parse(originalname).ext;
+          const newFileName = `${fileName}_${shortUUID}${fileExtension}`;
+
+          const link = `${DOMAIN_LINK}/orders/${orderId}/${newFileName}`;
+          orderFiles.push({
+            link,
+            name: newFileName,
+            size: file.size,
+            orderProductId,
+            orderId,
+          });
+
+          await writeFile(path.join(orderPath, newFileName), file.buffer);
+        }
+
+        await this.orderFileModel.bulkCreate(orderFiles, {
+          transaction: t,
+          ignoreDuplicates: true,
+        });
+      }
+
       order = await this.getOrder(orderId, t);
 
       await t.commit();
     } catch (error) {
       await t.rollback();
+      throw new Error(error);
     }
-    return { order, orderProducts };
+    return { order };
   }
 
   // DESKTOP
@@ -337,6 +424,21 @@ export class OrdersService {
           include: [
             {
               model: Product,
+            },
+          ],
+        },
+        {
+          model: OrderFile,
+          include: [
+            {
+              model: OrderProduct,
+              attributes: ['id'],
+              include: [
+                {
+                  model: Product,
+                  attributes: ['name'],
+                },
+              ],
             },
           ],
         },

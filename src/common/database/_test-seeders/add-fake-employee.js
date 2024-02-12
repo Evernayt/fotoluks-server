@@ -1,5 +1,5 @@
 'use strict';
-const EMPLOYEES = require('../../fakeData/employees.json');
+const EMPLOYEES = require('../../fake-data/employees.json');
 
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {

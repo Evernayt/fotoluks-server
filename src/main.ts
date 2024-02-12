@@ -1,11 +1,27 @@
-import { NestFactory, Reflector } from '@nestjs/core';
+import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import AuthAPI from './moysklad/api/AuthAPI/AuthAPI';
 import { ServerModule } from './server.module';
 import * as bodyParser from 'body-parser';
 import { initializeApp, cert } from 'firebase-admin/app';
-import { CheckVersionGuard } from './checkVersion.guard';
+import { CheckVersionGuard } from './common/global-guards/checkVersion.guard';
 const serviceAccount = require('../firebase-adminsdk.json');
+import * as fs from 'fs';
+import * as path from 'path';
+
+function createFolders() {
+  const avatarPath = path.join(__dirname, '..', 'static', 'avatar');
+  const managerPath = path.join(__dirname, '..', 'static', 'manager');
+  const ordersPath = path.join(__dirname, '..', 'static', 'orders');
+  const tasksPath = path.join(__dirname, '..', 'static', 'tasks');
+
+  const paths = [avatarPath, managerPath, ordersPath, tasksPath];
+  paths.forEach((path) => {
+    if (!fs.existsSync(path)) {
+      fs.mkdirSync(path, { recursive: true });
+    }
+  });
+}
 
 async function bootstrap() {
   const PORT = process.env.PORT || 5000;
@@ -16,8 +32,7 @@ async function bootstrap() {
   const server = await NestFactory.create(ServerModule, { cors: true });
   server.use(bodyParser.json({ limit: '50mb' }));
   server.use(bodyParser.urlencoded({ extended: true, limit: '50mb' }));
-  const reflector = server.get(Reflector);
-  server.useGlobalGuards(new CheckVersionGuard(reflector));
+  server.useGlobalGuards(new CheckVersionGuard());
 
   initializeApp({
     credential: cert(serviceAccount),
@@ -48,4 +63,6 @@ async function bootstrap() {
       });
   }
 }
+
+createFolders();
 bootstrap();

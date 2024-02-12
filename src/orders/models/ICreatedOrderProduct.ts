@@ -1,5 +1,5 @@
 export interface ICreatedOrderProduct {
-  id: number | null;
+  id: number | string;
   orderId: number | null;
   quantity: number;
   price: number;
