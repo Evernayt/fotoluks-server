@@ -2,11 +2,9 @@ import { TaskMessage } from './../task-messages/task-messages.model';
 import { TaskMember } from './../task-members/task-members.model';
 import { ApiProperty } from '@nestjs/swagger';
 import {
-  BelongsTo,
   BelongsToMany,
   Column,
   DataType,
-  ForeignKey,
   HasMany,
   Model,
   Table,
@@ -22,6 +20,7 @@ import { OrderInfo } from 'src/order-infos/order-infos.model';
 import { OrderMember } from 'src/order-members/order-members.model';
 import { Task } from 'src/tasks/tasks.model';
 import { Role } from 'src/roles/roles.model';
+import { EmployeeRoles } from 'src/roles/employee-roles.model';
 
 interface EmployeeCreationAttrs {
   login: string;
@@ -65,10 +64,6 @@ export class Employee extends Model<Employee, EmployeeCreationAttrs> {
   @Column({ type: DataType.BOOLEAN, allowNull: false, defaultValue: false })
   archive: boolean;
 
-  @ForeignKey(() => Role)
-  @Column({ type: DataType.INTEGER })
-  roleId: number;
-
   @BelongsToMany(() => App, () => EmployeeApps)
   apps: App[];
 
@@ -77,6 +72,9 @@ export class Employee extends Model<Employee, EmployeeCreationAttrs> {
 
   @BelongsToMany(() => Notification, () => EmployeeNotifications)
   notifications: Notification[];
+
+  @BelongsToMany(() => Role, () => EmployeeRoles)
+  roles: Role[];
 
   @HasMany(() => OrderInfo, { foreignKey: 'employeeId' })
   orderInfos: OrderInfo[];
@@ -98,7 +96,4 @@ export class Employee extends Model<Employee, EmployeeCreationAttrs> {
 
   @HasMany(() => TaskMessage, { foreignKey: 'employeeId' })
   taskMessages: Task[];
-
-  @BelongsTo(() => Role, { foreignKey: 'roleId' })
-  role: Role;
 }

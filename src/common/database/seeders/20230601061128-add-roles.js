@@ -8,18 +8,23 @@ module.exports = {
       [
         {
           id: 1,
-          name: 'Админ',
+          name: 'Разработчик',
           accessLevel: 1,
         },
         {
           id: 2,
-          name: 'Менеджер',
+          name: 'Админ',
           accessLevel: 2,
         },
         {
           id: 3,
-          name: 'Сотрудник',
+          name: 'Менеджер',
           accessLevel: 3,
+        },
+        {
+          id: 4,
+          name: 'Сотрудник',
+          accessLevel: 4,
         },
       ],
       {},

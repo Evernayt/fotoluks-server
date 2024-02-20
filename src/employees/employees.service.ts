@@ -16,11 +16,15 @@ import { EmployeeDepartments } from 'src/departments/employee-departments.model'
 import { Role } from 'src/roles/roles.model';
 import { Literal } from 'sequelize/types/utils';
 import correctSearch from 'src/common/helpers/correctSearch';
+import { AddRoleDto } from './dto/add-role.dto';
+import { EmployeeRoles } from 'src/roles/employee-roles.model';
 
 @Injectable()
 export class EmployeesService {
   constructor(
     @InjectModel(Employee) private employeeModel: typeof Employee,
+    @InjectModel(EmployeeRoles)
+    private employeeRolesModel: typeof EmployeeRoles,
     @InjectModel(EmployeeApps) private employeeAppsModel: typeof EmployeeApps,
     @InjectModel(EmployeeDepartments)
     private employeeDepartmentsModel: typeof EmployeeDepartments,
@@ -119,6 +123,19 @@ export class EmployeesService {
       ],
     });
     return employee;
+  }
+
+  async addRole(addRoleDto: AddRoleDto) {
+    const { employeeId, roleIds } = addRoleDto;
+
+    const employee = await this.employeeModel.findByPk(employeeId);
+
+    if (employee) {
+      await this.employeeRolesModel.destroy({ where: { employeeId } });
+      await employee.$add('role', roleIds);
+      return addRoleDto;
+    }
+    throw new HttpException('Сотрудник не найден', HttpStatus.NOT_FOUND);
   }
 
   async addApp(addAppDto: AddAppDto) {

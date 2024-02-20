@@ -12,7 +12,4 @@ export class CreateEmployeeDto {
 
   @ApiProperty({ example: '12345', description: 'Пароль' })
   readonly password: string;
-
-  @ApiProperty({ example: 1, description: 'ID роли' })
-  readonly roleId: number;
 }

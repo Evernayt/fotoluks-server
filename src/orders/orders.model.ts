@@ -41,11 +41,11 @@ export class Order extends Model<Order, OrderCreationAttrs> {
   id: number;
 
   @ApiProperty({ example: 500, description: 'Сумма заказа' })
-  @Column({ type: DataType.INTEGER, allowNull: false })
+  @Column({ type: DataType.DECIMAL(11, 1), allowNull: false })
   sum: number;
 
   @ApiProperty({ example: 200, description: 'Предоплата заказа' })
-  @Column({ type: DataType.INTEGER, allowNull: false })
+  @Column({ type: DataType.DECIMAL(11, 1), allowNull: false })
   prepayment: number;
 
   @ApiProperty({ example: 10, description: 'Процент скидки' })

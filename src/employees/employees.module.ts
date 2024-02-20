@@ -13,6 +13,9 @@ import { DepartmentsModule } from 'src/departments/departments.module';
 import { Notification } from 'src/notifications/notifications.model';
 import { EmployeeNotifications } from 'src/notifications/employee-notifications.model';
 import { NotificationsModule } from 'src/notifications/notifications.module';
+import { Role } from 'src/roles/roles.model';
+import { EmployeeRoles } from 'src/roles/employee-roles.model';
+import { RolesModule } from 'src/roles/roles.module';
 
 @Module({
   providers: [EmployeesService],
@@ -26,10 +29,13 @@ import { NotificationsModule } from 'src/notifications/notifications.module';
       EmployeeDepartments,
       Notification,
       EmployeeNotifications,
+      Role,
+      EmployeeRoles,
     ]),
     AppsModule,
     DepartmentsModule,
     NotificationsModule,
+    RolesModule,
     forwardRef(() => AuthModule),
   ],
   exports: [EmployeesService],

@@ -32,7 +32,7 @@ export class OrderProduct extends Model<
   id: number;
 
   @ApiProperty({ example: 350, description: 'Цена' })
-  @Column({ type: DataType.INTEGER, allowNull: false })
+  @Column({ type: DataType.DECIMAL(11, 1), allowNull: false })
   price: number;
 
   @ApiProperty({ example: 1, description: 'Колличество' })

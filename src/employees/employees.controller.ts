@@ -17,6 +17,7 @@ import { AddDepartmentDto } from './dto/add-department.dto';
 import { GetEmployeesDto } from './dto/get-employees.dto';
 import { UpdateEmployeeDto } from './dto/update-employee.dto';
 import { UpdateEmployeePasswordDto } from './dto/update-employee-password.dto';
+import { AddRoleDto } from './dto/add-role.dto';
 
 @ApiTags('Сотрудники')
 @Controller('employees')
@@ -37,6 +38,14 @@ export class EmployeesController {
   @Get(':id')
   getOne(@Param('id') id: number) {
     return this.employeesService.getEmployee(id);
+  }
+
+  @ApiOperation({ summary: 'Добавить роль' })
+  @ApiResponse({ status: 200, type: Employee })
+  @UseGuards(JwtAuthGuard)
+  @Post('role')
+  addRole(@Body() addRoleDto: AddRoleDto) {
+    return this.employeesService.addRole(addRoleDto);
   }
 
   @ApiOperation({ summary: 'Дать доступ к приложениям' })
