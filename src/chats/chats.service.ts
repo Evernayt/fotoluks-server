@@ -64,7 +64,7 @@ export class ChatsService {
       EXISTS (
         SELECT *
         FROM chat_members
-        WHERE chatId = chat.id
+        WHERE chatId = Chat.id
         AND employeeId = ${employeeId}
       )
     `);
@@ -82,7 +82,7 @@ export class ChatsService {
               FROM
               chat_messages AS chat_message
               WHERE
-              chat_message.chatId = chat.id
+              chat_message.chatId = Chat.id
               )`),
           'latestMessageId',
         ],
