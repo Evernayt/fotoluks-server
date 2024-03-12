@@ -1,16 +1,16 @@
-import { TaskMembersModule } from './task-members/task-members.module';
-import { TaskMessagesModule } from './task-messages/task-messages.module';
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { SequelizeModule } from '@nestjs/sequelize';
+import { ServeStaticModule } from '@nestjs/serve-static';
+import * as path from 'path';
+import { TaskMembersModule } from './task-members/task-members.module';
+import { TaskMessagesModule } from './task-messages/task-messages.module';
 import { UsersModule } from './users/users.module';
 import { EmployeesModule } from './employees/employees.module';
 import { AuthModule } from './auth/auth.module';
 import { FilesModule } from './files/files.module';
-import { ServeStaticModule } from '@nestjs/serve-static';
 import { ShopsModule } from './shops/shops.module';
 import { AppsModule } from './apps/apps.module';
-import * as path from 'path';
 import { MoyskladModule } from './moysklad/moysklad.module';
 import { DepartmentsModule } from './departments/departments.module';
 import { VerificationModule } from './verification/verification.module';
@@ -31,6 +31,10 @@ import { ReportsModule } from './reports/reports.module';
 import { ChangelogsModule } from './changelogs/changelogs.module';
 import { OrderFilesModule } from './order-files/order-files.module';
 import { ScheduleModule } from '@nestjs/schedule';
+import { ChatsModule } from './chats/chats.module';
+import { ChatMessagesModule } from './chat-messages/chat-messages.module';
+import { ChatMembersModule } from './chat-members/chat-members.module';
+import { ChatReadMessagesModule } from './chat-read-messages/chat-read-messages.module';
 
 @Module({
   imports: [
@@ -77,6 +81,10 @@ import { ScheduleModule } from '@nestjs/schedule';
     ReportsModule,
     ChangelogsModule,
     OrderFilesModule,
+    ChatsModule,
+    ChatMessagesModule,
+    ChatMembersModule,
+    ChatReadMessagesModule,
   ],
 })
 export class ServerModule {}

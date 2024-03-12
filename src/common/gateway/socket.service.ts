@@ -9,6 +9,10 @@ export default class SocketService {
     return this.onlineEmployees;
   };
 
+  getOnlineEmployee = (socketId: string) => {
+    return this.onlineEmployees.find((x) => x.socketId === socketId);
+  };
+
   addOnlineEmployee = (employeeId: number, socketId: string) => {
     this.onlineEmployees.push({ employeeId, socketId: socketId });
   };

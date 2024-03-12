@@ -6,4 +6,7 @@ export class UpdateTaskMessageDto {
 
   @ApiProperty({ example: 'Привет', description: 'Сообщение' })
   readonly message: string;
+
+  @ApiProperty({ example: 'false', description: 'Изменено или нет' })
+  readonly edited: boolean;
 }

@@ -6,7 +6,7 @@ import {
   WebSocketServer,
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
-import { INotificationInfo, IEditor } from './socket.types';
+import { INotificationInfo, IEditor, IChatMessageInfo } from './socket.types';
 import { messaging } from 'firebase-admin';
 import { Message } from 'firebase-admin/lib/messaging/messaging-api';
 import SocketService from './socket.service';
@@ -39,7 +39,11 @@ export class SocketGateway {
     @MessageBody() data: INotificationInfo,
     @ConnectedSocket() socket: Socket,
   ) {
-    socket.broadcast.emit('getNotification', data);
+    const senderEmployeeId = this.socketService.getOnlineEmployee(
+      socket.id,
+    ).employeeId;
+
+    socket.broadcast.emit('getNotification', data, senderEmployeeId);
 
     const message: Message = {
       data: { data: JSON.stringify(data) },
@@ -99,6 +103,46 @@ export class SocketGateway {
       'getMoveEditors',
       this.socketService.getMoveEditors(),
     );
+  }
+
+  @SubscribeMessage('updateChat')
+  handleUpdateChat(
+    @MessageBody() chat: any,
+    @ConnectedSocket() socket: Socket,
+  ) {
+    socket.broadcast.emit('getChat', chat);
+  }
+
+  @SubscribeMessage('deleteChat')
+  handleDeleteChat(
+    @MessageBody() chatId: number,
+    @ConnectedSocket() socket: Socket,
+  ) {
+    socket.broadcast.emit('getDeleteChat', chatId);
+  }
+
+  @SubscribeMessage('sendChatMessage')
+  handleSendChatMessage(
+    @MessageBody() data: IChatMessageInfo,
+    @ConnectedSocket() socket: Socket,
+  ) {
+    socket.broadcast.emit('getChatMessage', data);
+  }
+
+  @SubscribeMessage('updateChatMessage')
+  handleUpdateChatMessage(
+    @MessageBody() chatMessage: any,
+    @ConnectedSocket() socket: Socket,
+  ) {
+    socket.broadcast.emit('getChatMessageUpdates', chatMessage);
+  }
+
+  @SubscribeMessage('deleteChatMessage')
+  handleDeleteChatMessage(
+    @MessageBody() chatMessage: any,
+    @ConnectedSocket() socket: Socket,
+  ) {
+    socket.broadcast.emit('getDeleteChatMessage', chatMessage);
   }
 
   handleDisconnect(@ConnectedSocket() socket: Socket) {
