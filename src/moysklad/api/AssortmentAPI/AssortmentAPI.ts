@@ -12,7 +12,7 @@ export default class AssortmentAPI {
     limit = limit || 1000;
     offset = offset || 0;
 
-    let url = `entity/assortment/?limit=${limit}&offset=${offset}`;
+    let url = `entity/assortment/?limit=${limit}&offset=${offset}&expand=product`;
     if (ids) {
       ids.forEach((id) => {
         url += `&filter=id=${id}`;

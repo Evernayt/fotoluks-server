@@ -29,8 +29,15 @@ import SupplyAPI from './api/SupplyAPI/SupplyAPI';
 import { UpdateVariantDto } from './api/VariantAPI/dto/update-variant.dto';
 import VariantAPI from './api/VariantAPI/VariantAPI';
 import CounterpartyAPI from './api/CounterpartyAPI/CounterpartyAPI';
-import { GetCounterpartyDto } from './api/CounterpartyAPI/dto/get-counterparty.dto';
+import { GetCounterpartiesDto } from './api/CounterpartyAPI/dto/get-counterparties.dto';
 import { EditMoveDto } from './api/MoveAPI/dto/edit-move.dto';
+import { GetCustomentitiesDto } from './api/CustomentityAPI/dto/get-customentities.dto';
+import CustomentityAPI from './api/CustomentityAPI/CustomentityAPI';
+import { GetStocksByOperationDto } from './api/StockAPI/dto/get-stocks-by-operation.dto';
+import { CreateSupplyDto } from './api/SupplyAPI/dto/create-supply.dto';
+import { CreateSupplyPositionsDto } from './api/SupplyAPI/dto/create-supply-positions.dto';
+import ProductFolderAPI from './api/ProductFolderAPI/ProductFolderAPI';
+import { GetProductFoldersDto } from './api/ProductFolderAPI/dto/get-product-folders.dto';
 
 @Injectable()
 export class MoyskladService {
@@ -157,14 +164,21 @@ export class MoyskladService {
     return data;
   }
 
-  // Supply
-  async getSupplies(getSuppliesDto: GetSuppliesDto) {
-    const data = SupplyAPI.getAll(getSuppliesDto);
+  async getStocksByOperation(getStocksByOperationDto: GetStocksByOperationDto) {
+    const data = StockAPI.getAllByOperation(getStocksByOperationDto);
     return data;
   }
 
-  async getSupplyPositions(getSupplyPositionsDto: GetSupplyPositionsDto) {
-    const data = SupplyAPI.getPositions(getSupplyPositionsDto);
+  // Supply
+  async createSupply(createSupplyDto: CreateSupplyDto) {
+    const data = SupplyAPI.create(createSupplyDto);
+    return data;
+  }
+
+  async createSupplyPosition(
+    createSupplyPositionsDto: CreateSupplyPositionsDto,
+  ) {
+    const data = SupplyAPI.createPosition(createSupplyPositionsDto);
     return data;
   }
 
@@ -173,9 +187,36 @@ export class MoyskladService {
     return data;
   }
 
+  async getSupplies(getSuppliesDto: GetSuppliesDto) {
+    const data = SupplyAPI.getAll(getSuppliesDto);
+    return data;
+  }
+
+  async getSupply(supplyId: string) {
+    const data = SupplyAPI.getOne(supplyId);
+    return data;
+  }
+
+  async getSupplyPositions(getSupplyPositionsDto: GetSupplyPositionsDto) {
+    const data = SupplyAPI.getPositions(getSupplyPositionsDto);
+    return data;
+  }
+
   // Counterparty
-  async getCounterparty(getCounterpartyDto?: GetCounterpartyDto) {
-    const data = CounterpartyAPI.getAll(getCounterpartyDto || {});
+  async getCounterparties(getCounterpartiesDto?: GetCounterpartiesDto) {
+    const data = CounterpartyAPI.getAll(getCounterpartiesDto || {});
+    return data;
+  }
+
+  // Customentity
+  async getCustomentities(getCustomentitiesDto?: GetCustomentitiesDto) {
+    const data = CustomentityAPI.getAll(getCustomentitiesDto || {});
+    return data;
+  }
+
+  // ProductFolder
+  async getProductFolders(getProductFoldersDto: GetProductFoldersDto) {
+    const data = ProductFolderAPI.getAll(getProductFoldersDto);
     return data;
   }
 }

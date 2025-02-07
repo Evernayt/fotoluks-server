@@ -115,7 +115,7 @@ export class UsersService {
   async syncOneFromMoysklad(moyskladId: string) {
     let user = null;
     try {
-      const counterpartyData = await this.moyskladService.getCounterparty({
+      const counterpartyData = await this.moyskladService.getCounterparties({
         id: moyskladId,
       });
       if (counterpartyData?.rows.length) {

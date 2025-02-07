@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 
-export class GetSuppliesDto {
+export class GetProductFoldersDto {
   @ApiProperty({
     example: 100,
     description: 'Максимальное количество сущностей для извлечения',
@@ -14,24 +14,9 @@ export class GetSuppliesDto {
   readonly offset: number;
 
   @ApiProperty({
-    example:
-      'https://online.moysklad.ru/api/remap/1.2/entity/product/3e3b6cad-4450-11eb-0a80-07c5000d9516',
-    description: 'Ссылка на товар',
-    required: false,
-  })
-  readonly productHref: string;
-
-  @ApiProperty({
-    example: 'КЗРК0074098',
+    example: 'ручки',
     description: 'Поиск',
     required: false,
   })
   readonly search?: string;
-
-  @ApiProperty({
-    example: 'agent,product',
-    description: 'Получить связанные объекты',
-    required: false,
-  })
-  readonly expand?: string;
 }

@@ -32,8 +32,13 @@ import { MoyskladService } from './moysklad.service';
 import { GetSuppliesDto } from './api/SupplyAPI/dto/get-supplies.dto';
 import { GetSupplyPositionsDto } from './api/SupplyAPI/dto/get-supply-positions.dto';
 import { EditSupplyDto } from './api/SupplyAPI/dto/edit-supply.dto';
-import { GetCounterpartyDto } from './api/CounterpartyAPI/dto/get-counterparty.dto';
+import { GetCounterpartiesDto } from './api/CounterpartyAPI/dto/get-counterparties.dto';
 import { EditMoveDto } from './api/MoveAPI/dto/edit-move.dto';
+import { GetCustomentitiesDto } from './api/CustomentityAPI/dto/get-customentities.dto';
+import { GetStocksByOperationDto } from './api/StockAPI/dto/get-stocks-by-operation.dto';
+import { CreateSupplyDto } from './api/SupplyAPI/dto/create-supply.dto';
+import { CreateSupplyPositionsDto } from './api/SupplyAPI/dto/create-supply-positions.dto';
+import { GetProductFoldersDto } from './api/ProductFolderAPI/dto/get-product-folders.dto';
 
 @ApiTags('МойСклад')
 @Controller('moysklad')
@@ -116,7 +121,7 @@ export class MoyskladController {
   @ApiOperation({ summary: 'Получить перемещение' })
   @UseGuards(JwtAuthGuard)
   @Get('move/one/:moveId')
-  getOne(@Param('moveId') moveId: string) {
+  getMove(@Param('moveId') moveId: string) {
     return this.moyskladService.getMove(moveId);
   }
 
@@ -209,19 +214,30 @@ export class MoyskladController {
     return this.moyskladService.getStocks(getStocksDto);
   }
 
-  // Supply
-  @ApiOperation({ summary: 'Получение приемок' })
+  @ApiOperation({ summary: 'Получение остатков по документу' })
   @UseGuards(JwtAuthGuard)
-  @Get('supply')
-  getSupplies(@Query() getSuppliesDto: GetSuppliesDto) {
-    return this.moyskladService.getSupplies(getSuppliesDto);
+  @Get('stock/byoperation')
+  getStocksByOperation(
+    @Query() getStocksByOperationDto: GetStocksByOperationDto,
+  ) {
+    return this.moyskladService.getStocksByOperation(getStocksByOperationDto);
   }
 
-  @ApiOperation({ summary: 'Получение позиций приемки' })
+  // Supply
+  @ApiOperation({ summary: 'Создание приемки' })
   @UseGuards(JwtAuthGuard)
-  @Get('supply/positions')
-  getSupplyPositions(@Query() getSupplyPositionsDto: GetSupplyPositionsDto) {
-    return this.moyskladService.getSupplyPositions(getSupplyPositionsDto);
+  @Post('supply')
+  createSupply(@Body() createSupplyDto: CreateSupplyDto) {
+    return this.moyskladService.createSupply(createSupplyDto);
+  }
+
+  @ApiOperation({ summary: 'Создание позиций приемки' })
+  @UseGuards(JwtAuthGuard)
+  @Post('supply/positions')
+  createSupplyPosition(
+    @Body() createSupplyPositionsDto: CreateSupplyPositionsDto,
+  ) {
+    return this.moyskladService.createSupplyPosition(createSupplyPositionsDto);
   }
 
   @ApiOperation({ summary: 'Изменить приемку' })
@@ -231,11 +247,48 @@ export class MoyskladController {
     return this.moyskladService.editSupply(editSupplyDto);
   }
 
+  @ApiOperation({ summary: 'Получение приемок' })
+  @UseGuards(JwtAuthGuard)
+  @Get('supply')
+  getSupplies(@Query() getSuppliesDto: GetSuppliesDto) {
+    return this.moyskladService.getSupplies(getSuppliesDto);
+  }
+
+  @ApiOperation({ summary: 'Получить приемку' })
+  @UseGuards(JwtAuthGuard)
+  @Get('supply/one/:supplyId')
+  getSupply(@Param('supplyId') supplyId: string) {
+    return this.moyskladService.getSupply(supplyId);
+  }
+
+  @ApiOperation({ summary: 'Получение позиций приемки' })
+  @UseGuards(JwtAuthGuard)
+  @Get('supply/positions')
+  getSupplyPositions(@Query() getSupplyPositionsDto: GetSupplyPositionsDto) {
+    return this.moyskladService.getSupplyPositions(getSupplyPositionsDto);
+  }
+
   // Counterparty
   @ApiOperation({ summary: 'Получение контрагенотов' })
   @UseGuards(JwtAuthGuard)
   @Get('counterparty')
-  getCounterparty(@Query() getCounterpartyDto: GetCounterpartyDto) {
-    return this.moyskladService.getCounterparty(getCounterpartyDto);
+  getCounterparties(@Query() getCounterpartiesDto: GetCounterpartiesDto) {
+    return this.moyskladService.getCounterparties(getCounterpartiesDto);
+  }
+
+  // Customentity
+  @ApiOperation({ summary: 'Получение пользовательского справочника' })
+  @UseGuards(JwtAuthGuard)
+  @Get('customentity')
+  getCustomentities(@Query() getCustomentitiesDto: GetCustomentitiesDto) {
+    return this.moyskladService.getCustomentities(getCustomentitiesDto);
+  }
+
+  // ProductFolder
+  @ApiOperation({ summary: 'Получение списка групп товаров' })
+  @UseGuards(JwtAuthGuard)
+  @Get('productfolder')
+  getProductfolders(@Query() getProductFoldersDto: GetProductFoldersDto) {
+    return this.moyskladService.getProductFolders(getProductFoldersDto);
   }
 }

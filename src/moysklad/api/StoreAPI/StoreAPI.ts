@@ -4,7 +4,7 @@ import { $authHost } from '..';
 
 export default class StoreAPI {
   static async getAll(): Promise<IMoyskladData<IStore>> {
-    const { data } = await $authHost.get('entity/store');
+    const { data } = await $authHost.get('entity/store/?order=name,asc');
     return data;
   }
 }

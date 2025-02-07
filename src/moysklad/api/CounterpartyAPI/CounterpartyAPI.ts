@@ -1,13 +1,13 @@
 import { IMoyskladData } from 'src/moysklad/models/IMoyskladData';
 import { $authHost } from '..';
-import { GetCounterpartyDto } from './dto/get-counterparty.dto';
+import { GetCounterpartiesDto } from './dto/get-counterparties.dto';
 import { ICounterparty } from 'src/moysklad/models/ICounterparty';
 
 export default class CounterpartyAPI {
   static async getAll(
-    getCounterpartyDto?: GetCounterpartyDto,
+    getCounterpartiesDto?: GetCounterpartiesDto,
   ): Promise<IMoyskladData<ICounterparty>> {
-    let { limit, offset, id, search } = getCounterpartyDto;
+    let { limit, offset, id, search } = getCounterpartiesDto;
     limit = limit || 1000;
     offset = offset || 0;
 

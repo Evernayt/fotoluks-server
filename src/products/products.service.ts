@@ -145,22 +145,33 @@ export class ProductsService {
     let products = [];
     try {
       const productsImportedFromMoysklad = await this.productModel.findAll({
-        where: { moyskladId: { [Op.ne]: null } },
+        where: { moyskladId: { [Op.ne]: null }, archive: false },
       });
 
       const moyskladIds: string[] = [];
       productsImportedFromMoysklad.forEach((product) => {
-        moyskladIds.push(product.moyskladId);
+        if (product.moyskladId) {
+          moyskladIds.push(product.moyskladId);
+        }
       });
       const splittedMoyskladIds = splitArrayIntoChunks(moyskladIds, 50);
 
       const assortments: IAssortment[] = [];
+      const undefiendIds: string[] = [];
       for (const ids of splittedMoyskladIds) {
         const assortmentsData = await this.moyskladService.getAssortments({
           ids,
           archived: true,
         });
-        assortments.push(...assortmentsData.rows);
+        if (assortmentsData) {
+          assortments.push(...assortmentsData.rows);
+        }
+        if (ids.length !== assortmentsData.rows.length) {
+          const difference = ids.filter(
+            (id) => !assortments.some((assortment) => assortment.id === id),
+          );
+          undefiendIds.push(...difference);
+        }
       }
 
       const updatedProducts = [];
@@ -179,10 +190,18 @@ export class ProductsService {
         updatedProducts.push(updatedProduct);
       }
 
+      if (undefiendIds) {
+        await this.productModel.update(
+          { archive: true },
+          { where: { moyskladId: undefiendIds } },
+        );
+      }
+
       products = updatedProducts;
+      return { splittedMoyskladIds, assortments, undefiendIds };
     } catch (error) {
       throw new HttpException(
-        error || 'Не удалось синхронизировать',
+        'Не удалось синхронизировать',
         HttpStatus.BAD_REQUEST,
       );
     }
